@@ -8,6 +8,78 @@ its own separate `SESSIONS.md`.
 
 ---
 
+## 2026-08-29 (later) — Everything is finally in a repo, and the public remote is gone
+
+Closes the open item from the entry below. **This folder is now
+`github.com/michalec12/no-csbs-website`** — private, branch `main`, 49 files.
+
+### The public remote, which was the real hazard
+
+This folder was wired to `github.com/michalec12/my-project` — **PUBLIC**,
+holding one unrelated commit (a Vite scaffold README from whatever it was
+cloned out of). Nothing had ever been pushed, but a single `git push` from here
+would have published `site/`, `functions/`, `firestore.rules` and every session
+log. **That remote has been removed.** The `my-project` repo itself is left
+alone on GitHub; nothing here points at it any more.
+
+### Where everything lives now
+
+| | |
+|---|---|
+| This folder — `site/`, `functions/`, rules, config, all four docs | `michalec12/no-csbs-website` (private) |
+| `podcast-app/` | `michalec12/no-csbs-companion` (private) |
+| `kompanion-app/` | `michalec12/kommissioners-kompanion` (private) |
+
+**Both app folders are now `.gitignore`d here**, not submoduled. Each is a real
+git repo sitting inside this one, and `git add -A` would otherwise record each
+as a gitlink — a submodule pointer with no `.gitmodules` and no remote, broken
+for anyone cloning. The `.gitignore` names which repo each belongs to, so the
+exclusion reads as a decision rather than an oversight. **Commit inside those
+folders; never from here.**
+
+### The docs were the point
+
+`CLAUDE.md`, `SESSIONS.md` and this file are ~215 KB of failure modes learned
+the expensive way and derivable from nothing. They existed on one disk. That is
+now fixed, and it was the main reason for doing this at all.
+
+### What was checked before committing
+
+Same gate discipline as the kompanion extraction, and it earned its keep:
+
+- **`functions/.secret.local` exists** (the 16-char emulator placeholder).
+  Ignored by `functions/.gitignore`'s `*.secret.local` — confirmed by
+  `check-ignore`, not by reading the rule and assuming the `*` matches a
+  leading dot.
+- **`.claude/settings.local.json`** (111 KB of tool permissions) was ignored
+  **only by a global ignore file** at `~/.config/git/ignore`. A global rule does
+  not travel with a repo, so it is now stated in this repo's own `.gitignore`
+  too.
+- No gitlink staged; no 64-hex string, private key or provider token in any
+  staged file. The only credential-shaped matches are the Firebase web
+  `apiKey` in `site/message-board.js` and `site/season-data.js`, which are
+  public client identifiers by design.
+- GitHub's own tree API confirms 49 blobs and no `node_modules`, app folder,
+  `.env`, `.secret.local` or `settings.local.json` path.
+
+### Knock-on: the app's references were updated
+
+`kompanion-app` had four references naming `my-project` as "the website repo" —
+its README's neighbours table and three cross-repo coupling comments. All four
+now say `no-csbs-website` (`4358a7f` in that repo). Left stale they would have
+pointed at a repo containing none of the files named beside them.
+
+The root `README.md` was still the Vite scaffold boilerplate — 32 lines about
+React and Vite. Replaced with one describing what this folder actually is,
+which repo each nested app belongs to, and which keys in `site/` are public by
+design rather than leaked.
+
+**Verified:** 49 blobs on the remote, repo confirmed `isPrivate=true` before the
+first push, working tree clean, and `kompanion-app` typechecks after its rename
+commit.
+
+---
+
 ## 2026-08-29 — kompanion-app extracted to its own private repo
 
 **Where things now live, and this is the part to remember:**
@@ -105,18 +177,15 @@ match podcast-app's form, `npm run typecheck` clean after every commit.
 
 ### Open items
 
-- **Nothing but the two apps is backed up.** `CLAUDE.md`, `SESSIONS.md` and this
-  file are ~215 KB of accumulated failure modes existing in exactly one place.
-  This change makes that gap sharper, not smaller. The parent's `origin` is
-  `michalec12/my-project`, which is **PUBLIC** — a real reason for caution and a
-  separate decision. A second private repo, or private Gists for the three
-  markdown files, avoids the question entirely.
 - The durable fix for the season boundary is to stop deriving it client-side at
   all: `season_data` documents already carry `meta.seasonId`, so the app could
   read the pipeline's answer instead of recomputing it. That removes the
   invariant rather than documenting it.
-- `release/` stays here: 555 MB, and its `app.asar` carries the live secret.
-  Inert while this folder is untracked; the first thing to check if that changes.
+- `release/` sits in the workspace folder: 555 MB, and its `app.asar` carries
+  the live secret. It is gitignored by the workspace repo, so it is inert.
+
+*(The "nothing is backed up" item that was here was closed the same day — see
+the entry above.)*
 
 ---
 

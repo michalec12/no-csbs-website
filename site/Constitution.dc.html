@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Barlow:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="league-data.js"></script>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#0c2b17;font-family:'Barlow',sans-serif;}
+  a{text-decoration:none;color:inherit;}
+
+  @media (max-width:760px){ [data-r="c2"]{ grid-template-columns:1fr !important; } }
+  @media (max-width:880px){ [data-r="c3"],[data-r="c5"],[data-r="c5nav"]{ grid-template-columns:repeat(2,1fr) !important; } }
+  @media (max-width:520px){ [data-r="c3"],[data-r="c5"],[data-r="c5nav"]{ grid-template-columns:1fr !important; } }
+  @media (max-width:900px){
+    [data-r="navbar"]{ height:auto !important; padding-top:10px !important; padding-bottom:10px !important; padding-left:16px !important; padding-right:16px !important; flex-wrap:wrap !important; gap:6px 14px !important; }
+    [data-r="navlinks"]{ flex-wrap:wrap !important; gap:8px 12px !important; font-size:11.5px !important; }
+  }
+</style>
+</helmet>
+
+<div style="background:#0c2b17; min-height:100vh; font-family:'Barlow',sans-serif;">
+
+  <!-- NAV -->
+  <div style="background:#0c2b17; border-bottom:2px solid #e8ddc3; padding:0 40px; height:70px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:20;" data-r="navbar">
+    <a href="Home.dc.html" style="font-family:'Anton',sans-serif; color:#e8ddc3; letter-spacing:0.06em; font-size:26px;">NO CSBS</a>
+    <div style="display:flex; gap:14px; font-family:'Barlow Condensed',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; font-size:12.5px;" data-r="navlinks">
+      <a href="Home.dc.html" style="color:#cfe0d3;">Home</a>
+      <a href="This-Season.dc.html" style="color:#cfe0d3;">This Season</a>
+      <a href="Message-Board.dc.html" style="color:#cfe0d3;">Message Board</a>
+      <a href="Members.dc.html" style="color:#cfe0d3;">Members</a>
+      <a href="Hall-of-Winners.dc.html" style="color:#cfe0d3;">Hall of Winners</a>
+      <a href="Draft-History.dc.html" style="color:#cfe0d3;">Draft Room</a>
+      <a href="League-Manager-Records.dc.html" style="color:#cfe0d3;">Manager Records</a>
+      <a href="The-Pantheon.dc.html" style="color:#cfe0d3;">The Pantheon</a>
+      <a href="Pit-of-Despair.dc.html" style="color:#cfe0d3;">Pit of Despair</a>
+      <a href="Constitution.dc.html" style="color:#f2c94c;">Constitution</a>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div style="background:#123f22; padding:56px clamp(18px,4.5vw,40px); border-bottom:2px solid #1e5230; text-align:center;">
+    <div style="font-family:'Space Mono',monospace; color:#f2c94c; letter-spacing:0.24em; font-size:13px; text-transform:uppercase;">Ratified 2008 · Amended by whoever's winning</div>
+    <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(38px,8vw,72px); line-height:0.9; margin-top:8px;">THE CONSTITUTION</div>
+    <div style="color:#9dc4aa; font-size:18px; margin-top:14px; max-width:640px; margin-left:auto; margin-right:auto; line-height:1.55; font-style:italic;">"No Chicken Shit Bullshit." Four words. One league. Zero excuses.</div>
+  </div>
+
+  <!-- ORIGINAL DOC -->
+  <div style="background:#0c2b17; padding:44px clamp(18px,4.5vw,40px);">
+    <div style="max-width:860px; margin:0 auto;">
+      <div style="background:#0f331f; border:1px solid #1e5230; border-left:4px solid #f2c94c; padding:24px 26px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
+        <div style="flex:1 1 420px;">
+          <div style="font-family:'Space Mono',monospace; color:#f2c94c; letter-spacing:0.18em; font-size:12px; text-transform:uppercase;">The Founding Document</div>
+          <div style="color:#dfeee3; font-size:17px; line-height:1.6; margin-top:10px;">The <strong style="color:#fff;">original league constitution</strong> — as written at the founding — is available to download below. This is the original version; the living rules and amendments the league runs on today are laid out beneath it.</div>
+        </div>
+        <a href="uploads/Fantasy%20Football%20Constitution.docx" download style="flex:0 0 auto; background:#f2c94c; color:#0c2b17; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; padding:15px 26px; font-size:17px; display:inline-flex; align-items:center; gap:10px;">📄 Download the Original (.docx)</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARTICLES -->
+  <div style="background:#08210f; padding:52px clamp(18px,4.5vw,40px);">
+    <div style="max-width:860px; margin:0 auto;">
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(27px,5vw,38px); margin-bottom:26px;">THE AMENDMENTS</div>
+
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div style="background:#0f331f; border:1px solid #1e5230; padding:24px 26px;">
+          <div style="display:flex; align-items:baseline; gap:14px;">
+            <span style="font-family:'Anton',sans-serif; color:#f2c94c; font-size:26px;">I.</span>
+            <span style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; text-transform:uppercase; font-size:24px; letter-spacing:0.02em;">The Trophy</span>
+          </div>
+          <div style="color:#bcd6c4; font-size:16px; line-height:1.6; margin-top:10px;">At each draft, the trophy passes from champion to champion, in the order they won it, while <em style="color:#f2c94c;">Chariots of Fire</em> plays in full. The ceremony is not optional and it is not to be rushed.</div>
+        </div>
+
+        <div style="background:#0f331f; border:1px solid #1e5230; padding:24px 26px;">
+          <div style="display:flex; align-items:baseline; gap:14px;">
+            <span style="font-family:'Anton',sans-serif; color:#f2c94c; font-size:26px;">II.</span>
+            <span style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; text-transform:uppercase; font-size:24px; letter-spacing:0.02em;">Hands Off</span>
+          </div>
+          <div style="color:#bcd6c4; font-size:16px; line-height:1.6; margin-top:10px;">Any manager who has never won the league is <strong style="color:#fff;">forbidden from touching the trophy</strong>. No holding it "just to see," no photos, no exceptions. Win it or admire it from a respectful distance.</div>
+        </div>
+
+        <div style="background:#0f331f; border:1px solid #1e5230; padding:24px 26px;">
+          <div style="display:flex; align-items:baseline; gap:14px;">
+            <span style="font-family:'Anton',sans-serif; color:#f2c94c; font-size:26px;">III.</span>
+            <span style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; text-transform:uppercase; font-size:24px; letter-spacing:0.02em;">The Punishment</span>
+          </div>
+          <div style="color:#bcd6c4; font-size:16px; line-height:1.6; margin-top:10px;">Each season's <strong style="color:#fff;">last-place finisher</strong> must complete a punishment. The punishment is chosen by the <strong style="color:#f2c94c;">reigning champion</strong> — the winner earns the right to decide next year's suffering. It must be completed, in full, and documented.</div>
+        </div>
+
+        <div style="background:#0f331f; border:1px solid #1e5230; padding:24px 26px;">
+          <div style="display:flex; align-items:baseline; gap:14px;">
+            <span style="font-family:'Anton',sans-serif; color:#f2c94c; font-size:26px;">IV.</span>
+            <span style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; text-transform:uppercase; font-size:24px; letter-spacing:0.02em;">Skip It, Get Buried</span>
+          </div>
+          <div style="color:#bcd6c4; font-size:16px; line-height:1.6; margin-top:10px;">Refusing or dodging your punishment is the gravest sin in the NO CSBS. Those who have skipped out have historically left the league in shame. Their names live on only in <a href="Members.dc.html" style="color:#f2c94c; border-bottom:1px solid #f2c94c;">The Graveyard</a>.</div>
+        </div>
+
+        <div style="background:#0f331f; border:1px solid #1e5230; padding:24px 26px;">
+          <div style="display:flex; align-items:baseline; gap:14px;">
+            <span style="font-family:'Anton',sans-serif; color:#f2c94c; font-size:26px;">V.</span>
+            <span style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; text-transform:uppercase; font-size:24px; letter-spacing:0.02em;">Keepers, Draft &amp; Roster</span>
+          </div>
+          <div style="color:#bcd6c4; font-size:16px; line-height:1.6; margin-top:10px;">Each year, a manager may <strong style="color:#fff;">keep one (1) player</strong> who was on their roster at the trade deadline, for <strong style="color:#f2c94c;">$10 more</strong> than they paid for them. This applies whether the player was drafted or picked up off the waiver wire. <strong style="color:#fff;">A player may be kept a maximum of two (2) times</strong>, after which they return to the draft pool. Full scoring settings are laid out in the table below.</div>
+          <div style="margin-top:16px; background:#08210f; border:1px solid #1e5230; padding:16px 18px;">
+            <div style="font-family:'Space Mono',monospace; color:#5f8a6d; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:10px;">Starting Lineup · 11 Starters</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:14px;">
+              <span style="background:#123f22; color:#e8ddc3; padding:6px 12px;">1 QB</span>
+              <span style="background:#123f22; color:#e8ddc3; padding:6px 12px;">2 RB</span>
+              <span style="background:#123f22; color:#e8ddc3; padding:6px 12px;">2 WR</span>
+              <span style="background:#123f22; color:#e8ddc3; padding:6px 12px;">1 TE</span>
+              <span style="background:#1a5c30; color:#fff; padding:6px 12px;">2 FLEX</span>
+              <span style="background:#123f22; color:#e8ddc3; padding:6px 12px;">1 D/ST</span>
+              <span style="background:#123f22; color:#e8ddc3; padding:6px 12px;">1 K</span>
+              <span style="background:#0c2b17; border:1px solid #3a5c46; color:#8fb89c; padding:6px 12px;">6 BENCH</span>
+              <span style="background:#0c2b17; border:1px solid #3a5c46; color:#8fb89c; padding:6px 12px;">2 IR</span>
+            </div>
+          </div>
+          <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; font-family:'Space Mono',monospace; font-size:12px;">
+            <span style="background:#08210f; border:1px solid #1e5230; color:#e8ddc3; padding:6px 12px;">1 KEEPER / YEAR</span>
+            <span style="background:#08210f; border:1px solid #1e5230; color:#e8ddc3; padding:6px 12px;">+$10 OVER PRIOR COST</span>
+            <span style="background:#08210f; border:1px solid #1e5230; color:#e8ddc3; padding:6px 12px;">MAX 2 KEEPS PER PLAYER</span>
+          </div>
+        </div>
+
+        <div style="background:#0f331f; border:1px solid #1e5230; padding:24px 26px;">
+          <div style="display:flex; align-items:baseline; gap:14px;">
+            <span style="font-family:'Anton',sans-serif; color:#f2c94c; font-size:26px;">VI.</span>
+            <span style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; text-transform:uppercase; font-size:24px; letter-spacing:0.02em;">Dues &amp; Payouts</span>
+          </div>
+          <div style="color:#bcd6c4; font-size:16px; line-height:1.6; margin-top:10px;">League dues are <strong style="color:#f2c94c;">$200 per manager</strong>, per season. The season pot is paid out to the top three finishers, with a separate side pool riding on the year's single highest regular-season score. And yes, everyone knows who's perpetually late paying.</div>
+          <div style="margin-top:16px; display:grid; grid-template-columns:repeat(3,1fr); gap:12px;" data-r="c3">
+            <div style="background:#08210f; border:1px solid #2a5238; border-top:3px solid #f2c94c; padding:18px 16px; text-align:center;">
+              <div style="font-family:'Space Mono',monospace; color:#f2c94c; font-size:12px; letter-spacing:0.14em; text-transform:uppercase;">1st Place</div>
+              <div style="font-family:'Anton',sans-serif; color:#fff; font-size:38px; line-height:1; margin-top:6px;">$950</div>
+              <div style="color:#8fb89c; font-size:12px; margin-top:4px;">The champion's cut</div>
+            </div>
+            <div style="background:#08210f; border:1px solid #1e5230; border-top:3px solid #cfe0d3; padding:18px 16px; text-align:center;">
+              <div style="font-family:'Space Mono',monospace; color:#cfe0d3; font-size:12px; letter-spacing:0.14em; text-transform:uppercase;">2nd Place</div>
+              <div style="font-family:'Anton',sans-serif; color:#fff; font-size:38px; line-height:1; margin-top:6px;">$500</div>
+              <div style="color:#8fb89c; font-size:12px; margin-top:4px;">Runner-up</div>
+            </div>
+            <div style="background:#08210f; border:1px solid #1e5230; border-top:3px solid #b98f4a; padding:18px 16px; text-align:center;">
+              <div style="font-family:'Space Mono',monospace; color:#b98f4a; font-size:12px; letter-spacing:0.14em; text-transform:uppercase;">3rd Place</div>
+              <div style="font-family:'Anton',sans-serif; color:#fff; font-size:38px; line-height:1; margin-top:6px;">$300</div>
+              <div style="color:#8fb89c; font-size:12px; margin-top:4px;">On the podium</div>
+            </div>
+          </div>
+          <div style="margin-top:12px; font-family:'Space Mono',monospace; color:#5f8a6d; font-size:12px; line-height:1.6;">Plus a high-score side pot for the top regular-season game of the year — tracked live on the home page.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORING SETTINGS -->
+  <div style="background:#0c2b17; padding:52px clamp(18px,4.5vw,40px);">
+    <div style="max-width:1000px; margin:0 auto;">
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(27px,5vw,38px);">SCORING SETTINGS</div>
+      <div style="color:#7fa98c; font-size:14px; margin-top:6px; max-width:720px; line-height:1.5;">Full-PPR, 6-point passing touchdowns. The official settings the league runs on ESPN.</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; margin-top:24px;">
+
+        <div style="background:#0f331f; border:1px solid #1e5230; border-top:3px solid #f2c94c; padding:20px 22px;">
+          <div style="font-family:'Barlow Condensed',sans-serif; color:#f2c94c; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; font-size:19px; margin-bottom:12px;">Passing</div>
+          <div style="font-family:'Space Mono',monospace; font-size:13px; color:#cfe0d3; display:flex; flex-direction:column; gap:7px;">
+            <div style="display:flex; justify-content:space-between;"><span>Passing yards</span><span style="color:#e8ddc3;">1 / 25 yd</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Passing TD</span><span style="color:#e8ddc3;">6</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>50+ yd TD bonus</span><span style="color:#e8ddc3;">2</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Interception thrown</span><span style="color:#cf6b45;">−2</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>2pt conversion</span><span style="color:#e8ddc3;">2</span></div>
+          </div>
+        </div>
+
+        <div style="background:#0f331f; border:1px solid #1e5230; border-top:3px solid #f2c94c; padding:20px 22px;">
+          <div style="font-family:'Barlow Condensed',sans-serif; color:#f2c94c; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; font-size:19px; margin-bottom:12px;">Rushing</div>
+          <div style="font-family:'Space Mono',monospace; font-size:13px; color:#cfe0d3; display:flex; flex-direction:column; gap:7px;">
+            <div style="display:flex; justify-content:space-between;"><span>Rushing yards</span><span style="color:#e8ddc3;">1 / 10 yd</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Rushing TD</span><span style="color:#e8ddc3;">6</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>50+ yd TD bonus</span><span style="color:#e8ddc3;">2</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>2pt conversion</span><span style="color:#e8ddc3;">2</span></div>
+          </div>
+        </div>
+
+        <div style="background:#0f331f; border:1px solid #1e5230; border-top:3px solid #f2c94c; padding:20px 22px;">
+          <div style="font-family:'Barlow Condensed',sans-serif; color:#f2c94c; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; font-size:19px; margin-bottom:12px;">Receiving</div>
+          <div style="font-family:'Space Mono',monospace; font-size:13px; color:#cfe0d3; display:flex; flex-direction:column; gap:7px;">
+            <div style="display:flex; justify-content:space-between;"><span>Receiving yards</span><span style="color:#e8ddc3;">1 / 10 yd</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Reception (PPR)</span><span style="color:#e8ddc3;">1</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Receiving TD</span><span style="color:#e8ddc3;">6</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>50+ yd TD bonus</span><span style="color:#e8ddc3;">2</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>2pt conversion</span><span style="color:#e8ddc3;">2</span></div>
+          </div>
+        </div>
+
+        <div style="background:#0f331f; border:1px solid #1e5230; border-top:3px solid #f2c94c; padding:20px 22px;">
+          <div style="font-family:'Barlow Condensed',sans-serif; color:#f2c94c; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; font-size:19px; margin-bottom:12px;">Kicking</div>
+          <div style="font-family:'Space Mono',monospace; font-size:13px; color:#cfe0d3; display:flex; flex-direction:column; gap:7px;">
+            <div style="display:flex; justify-content:space-between;"><span>PAT made</span><span style="color:#e8ddc3;">1</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>FG missed</span><span style="color:#cf6b45;">−1</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>FG 0–39 yd</span><span style="color:#e8ddc3;">3</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>FG 40–49 yd</span><span style="color:#e8ddc3;">4</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>FG 50+ yd</span><span style="color:#e8ddc3;">5</span></div>
+          </div>
+        </div>
+
+        <div style="background:#0f331f; border:1px solid #1e5230; border-top:3px solid #f2c94c; padding:20px 22px;">
+          <div style="font-family:'Barlow Condensed',sans-serif; color:#f2c94c; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; font-size:19px; margin-bottom:12px;">Defense / Special Teams</div>
+          <div style="font-family:'Space Mono',monospace; font-size:13px; color:#cfe0d3; display:flex; flex-direction:column; gap:7px;">
+            <div style="display:flex; justify-content:space-between;"><span>Any TD (KR/PR/INT/FR/Blk)</span><span style="color:#e8ddc3;">6</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Sack</span><span style="color:#e8ddc3;">1</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Interception / Fumble rec.</span><span style="color:#e8ddc3;">2</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Blocked kick / Safety</span><span style="color:#e8ddc3;">2</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Fumble lost (offense)</span><span style="color:#cf6b45;">−2</span></div>
+          </div>
+        </div>
+
+        <div style="background:#0f331f; border:1px solid #1e5230; border-top:3px solid #f2c94c; padding:20px 22px;">
+          <div style="font-family:'Barlow Condensed',sans-serif; color:#f2c94c; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; font-size:19px; margin-bottom:12px;">Points Allowed (D/ST)</div>
+          <div style="font-family:'Space Mono',monospace; font-size:13px; color:#cfe0d3; display:flex; flex-direction:column; gap:7px;">
+            <div style="display:flex; justify-content:space-between;"><span>0</span><span style="color:#e8ddc3;">10</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>1–6 / 7–13</span><span style="color:#e8ddc3;">7 / 4</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>14–17</span><span style="color:#e8ddc3;">1</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>22–27 / 28–34</span><span style="color:#cf6b45;">−1 / −4</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>35–45 / 46+</span><span style="color:#cf6b45;">−7 / −10</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="background:#0c2b17; border-top:2px solid #1e5230; padding:26px clamp(18px,4.5vw,40px); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <span style="font-family:'Barlow Condensed',sans-serif; color:#5f7d68; letter-spacing:0.14em; font-size:14px; text-transform:uppercase;">NO CSBS · No Chicken Shit Bullshit</span>
+    <span style="font-family:'Space Mono',monospace; color:#5f7d68; font-size:12px;">MINNESOTA · SINCE 2008</span>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount(){
+    if(!window.NOCSBS){
+      this._iv = setInterval(()=>{ if(window.NOCSBS){ clearInterval(this._iv); this.forceUpdate(); } }, 60);
+    }
+  }
+  componentWillUnmount(){ if(this._iv) clearInterval(this._iv); }
+  renderVals(){
+    const D = window.NOCSBS;
+    if(!D) return {};
+    const nm = id => D.name[id];
+    const ledger = [...D.seasons].reverse().map((s,idx,arr)=>{
+      const last = s.rows[s.rows.length-1];
+      // chooser = champion of the PREVIOUS season
+      const prev = D.champions.find(c => c.year === s.year - 1);
+      return {
+        year: s.year,
+        loser: nm(last[0]),
+        loserTeam: last[1],
+        chooser: prev ? (prev.champCo ? nm(prev.champId)+" & "+nm(prev.champCo) : nm(prev.champId)) : "— inaugural —",
+        punishment: "[ add punishment ]",
+        bg: idx%2 ? "#0e3320" : "#0c2b17"
+      };
+    });
+    return { ledger };
+  }
+}
+</script>
+</body>
+</html>

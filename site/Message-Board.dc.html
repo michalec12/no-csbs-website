@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Barlow:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+  window.NOCSBS_GIPHY_KEY = "MEPt8LJH23K86XZS4TVFRfHWC47YLZaS";
+</script>
+<script type="module" src="message-board.js"></script>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#0c2b17;font-family:'Barlow',sans-serif;}
+  a{text-decoration:none;color:inherit;}
+  [contenteditable]:focus{outline:none;}
+  [contenteditable] ul, [contenteditable] ol{margin:6px 0; padding-left:26px;}
+  [contenteditable]:empty:before{content:attr(data-placeholder); color:#5f7d68; pointer-events:none;}
+  .mb-fade{animation:mb-fade .18s ease;}
+  @keyframes mb-fade{from{opacity:0; transform:translateY(4px);}to{opacity:1; transform:translateY(0);}}
+
+  @media (max-width:760px){ [data-r="c2"]{ grid-template-columns:1fr !important; } }
+  @media (max-width:880px){ [data-r="c3"],[data-r="c5"],[data-r="c5nav"]{ grid-template-columns:repeat(2,1fr) !important; } }
+  @media (max-width:520px){ [data-r="c3"],[data-r="c5"],[data-r="c5nav"]{ grid-template-columns:1fr !important; } }
+  @media (max-width:900px){
+    [data-r="navbar"]{ height:auto !important; padding-top:10px !important; padding-bottom:10px !important; padding-left:16px !important; padding-right:16px !important; flex-wrap:wrap !important; gap:6px 14px !important; }
+    [data-r="navlinks"]{ flex-wrap:wrap !important; gap:8px 12px !important; font-size:11.5px !important; }
+    [data-r="acctchip"]{ position:static !important; margin:14px clamp(18px,4.5vw,40px) 0 !important; }
+  }
+  @media (max-width:640px){
+    [data-r="toolbar"]{ gap:4px !important; }
+    [data-r="gifgrid"]{ grid-template-columns:repeat(2,1fr) !important; }
+  }
+</style>
+</helmet>
+
+<div style="background:#0c2b17; min-height:100vh; font-family:'Barlow',sans-serif; position:relative;">
+
+  <!-- NAV -->
+  <div style="background:#0c2b17; border-bottom:2px solid #e8ddc3; padding:0 40px; height:70px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:20;" data-r="navbar">
+    <a href="Home.dc.html" style="font-family:'Anton',sans-serif; color:#e8ddc3; letter-spacing:0.06em; font-size:26px;">NO CSBS</a>
+    <div style="display:flex; gap:14px; font-family:'Barlow Condensed',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; font-size:12.5px;" data-r="navlinks">
+      <a href="Home.dc.html" style="color:#cfe0d3;">Home</a>
+      <a href="This-Season.dc.html" style="color:#cfe0d3;">This Season</a>
+      <a href="Message-Board.dc.html" style="color:#f2c94c;">Message Board</a>
+      <a href="Members.dc.html" style="color:#cfe0d3;">Members</a>
+      <a href="Hall-of-Winners.dc.html" style="color:#cfe0d3;">Hall of Winners</a>
+      <a href="Draft-History.dc.html" style="color:#cfe0d3;">Draft Room</a>
+      <a href="League-Manager-Records.dc.html" style="color:#cfe0d3;">Manager Records</a>
+      <a href="The-Pantheon.dc.html" style="color:#cfe0d3;">The Pantheon</a>
+      <a href="Pit-of-Despair.dc.html" style="color:#cfe0d3;">Pit of Despair</a>
+      <a href="Constitution.dc.html" style="color:#cfe0d3;">Constitution</a>
+    </div>
+  </div>
+
+  <!-- ACCOUNT CHIP (upper right, just under the nav) -->
+  <sc-if value="{{ isMember }}">
+    <div data-r="acctchip" style="position:absolute; top:82px; right:clamp(18px,4.5vw,40px); z-index:15; display:flex; align-items:center; gap:10px; background:#123f22; border:1px solid #1e5230; box-shadow:0 6px 16px rgba(0,0,0,0.3); padding:8px 14px 8px 8px;">
+      {{ userAvatarEl }}
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif; color:#e8ddc3; font-weight:700; font-size:14px;">{{ memberName }}</div>
+        <div style="font-family:'Space Mono',monospace; color:#7fa98c; font-size:10px; text-transform:uppercase; letter-spacing:0.1em;">{{ memberRoleLabel }}</div>
+      </div>
+      <a href="#" onclick="{{ handleSignOut }}" style="font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#cf6b45; font-size:11.5px; margin-left:8px;">Sign Out</a>
+    </div>
+  </sc-if>
+
+  <!-- HEADER -->
+  <div style="background:#123f22; padding:52px clamp(18px,4.5vw,40px); border-bottom:2px solid #1e5230;">
+    <div style="max-width:1100px; margin:0 auto; text-align:center;">
+      <div style="font-family:'Space Mono',monospace; color:#f2c94c; letter-spacing:0.24em; font-size:13px; text-transform:uppercase;">Talk Amongst Yourselves</div>
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(40px,8.5vw,76px); line-height:0.9; margin-top:6px;">MESSAGE BOARD</div>
+      <div style="color:#9dc4aa; font-size:17px; margin-top:10px; max-width:640px; line-height:1.5; margin-left:auto; margin-right:auto;">Commissioner recaps, trash talk, and everything else. Members only.</div>
+    </div>
+  </div>
+
+  <!-- SIGN-IN GATE -->
+  <sc-if value="{{ showSignInGate }}">
+    <div style="background:#0c2b17; padding:80px clamp(18px,4.5vw,40px); display:flex; justify-content:center;">
+      <div style="max-width:460px; text-align:center;">
+        <div style="font-family:'Anton',sans-serif; color:#fff; font-size:30px;">MEMBERS ONLY</div>
+        <div style="color:#9dc4aa; font-size:15px; margin-top:10px; line-height:1.6;">Sign in with the Google account the commissioner has on file to read and post on the board.</div>
+        <button onclick="{{ handleSignIn }}" style="margin-top:24px; background:#f2c94c; color:#0c2b17; border:none; font-family:'Anton',sans-serif; text-transform:uppercase; letter-spacing:0.04em; padding:16px 30px; font-size:17px; cursor:pointer;">Sign in with Google</button>
+        <sc-if value="{{ authError }}">
+          <div style="margin-top:16px; color:#e8a27a; font-size:13px; font-family:'Space Mono',monospace;">{{ authError }}</div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- NOT ON ROSTER -->
+  <sc-if value="{{ showNotRecognized }}">
+    <div style="background:#0c2b17; padding:80px clamp(18px,4.5vw,40px); display:flex; justify-content:center;">
+      <div style="max-width:480px; text-align:center;">
+        <div style="font-family:'Anton',sans-serif; color:#fff; font-size:26px;">NOT ON THE ROSTER</div>
+        <div style="color:#9dc4aa; font-size:15px; margin-top:10px; line-height:1.6;">Signed in as <span style="color:#e8ddc3;">{{ signedInEmail }}</span> — this account isn't on the commissioner's member list. Ask the commissioner to add it.</div>
+        <a href="#" onclick="{{ handleSignOut }}" style="display:inline-block; margin-top:20px; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#f2c94c;">Sign in with a different account →</a>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- BOARD -->
+  <sc-if value="{{ isMember }}">
+  <div style="background:#0c2b17; padding:44px clamp(18px,4.5vw,40px) 90px;">
+    <div style="max-width:800px; margin:0 auto;">
+
+      <!-- COMPOSER -->
+      <div style="background:#123f22; border:1px solid #1e5230;">
+        <div style="padding:14px 16px 0;">
+          <input value="{{ titleInput }}" onChange="{{ handleTitleChange }}" placeholder="Title…" style="width:100%; background:#0c2b17; border:1px solid #1e5230; color:#e8ddc3; padding:11px 12px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px; letter-spacing:0.02em;">
+        </div>
+
+        <div style="display:flex; gap:6px; padding:12px 12px 10px; border-bottom:1px solid #1e5230; flex-wrap:wrap;" data-r="toolbar">
+          <button onclick="{{ cmdBold }}" title="Bold" style="background:#0c2b17; border:1px solid #1e5230; color:#e8ddc3; width:32px; height:32px; font-weight:700; cursor:pointer;">B</button>
+          <button onclick="{{ cmdItalic }}" title="Italic" style="background:#0c2b17; border:1px solid #1e5230; color:#e8ddc3; width:32px; height:32px; font-style:italic; cursor:pointer;">I</button>
+          <button onclick="{{ cmdUnderline }}" title="Underline" style="background:#0c2b17; border:1px solid #1e5230; color:#e8ddc3; width:32px; height:32px; text-decoration:underline; cursor:pointer;">U</button>
+          <button onclick="{{ cmdUL }}" title="Bullet list" style="background:#0c2b17; border:1px solid #1e5230; color:#e8ddc3; width:32px; height:32px; cursor:pointer; font-size:16px;">•≡</button>
+          <button onclick="{{ cmdOL }}" title="Numbered list" style="background:#0c2b17; border:1px solid #1e5230; color:#e8ddc3; width:32px; height:32px; cursor:pointer; font-size:12px; font-family:'Space Mono',monospace;">1.≡</button>
+          <button onclick="{{ cmdOutdent }}" title="Outdent" style="background:#0c2b17; border:1px solid #1e5230; color:#e8ddc3; width:32px; height:32px; cursor:pointer;">⇤</button>
+          <button onclick="{{ cmdIndent }}" title="Indent" style="background:#0c2b17; border:1px solid #1e5230; color:#e8ddc3; width:32px; height:32px; cursor:pointer;">⇥</button>
+          <div style="flex:1;"></div>
+          <button onclick="{{ handleOpenGifPicker }}" title="Add GIF" style="background:#0c2b17; border:1px solid #1e5230; color:#8fbf9d; height:32px; padding:0 10px; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:12px; text-transform:uppercase;">GIF</button>
+          <label style="background:#0c2b17; border:1px solid #1e5230; color:#8fbf9d; height:32px; padding:0 10px; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:12px; text-transform:uppercase; display:inline-flex; align-items:center;">
+            Image
+            <input type="file" accept="image/*" onchange="{{ handleImageChange }}" style="display:none;">
+          </label>
+        </div>
+
+        <div style="padding:0 16px 12px;">
+          <div ref="{{ setComposerRef }}" contenteditable="true" onInput="{{ handleComposerInput }}" style="min-height:90px; padding:12px 14px; background:#0c2b17; border:1px solid #1e5230; color:#e8ddc3; font-size:15px; line-height:1.6;" data-placeholder="Body…"></div>
+        </div>
+
+        <sc-if value="{{ composerPendingGif }}">
+          <div style="padding:0 16px 12px; position:relative; display:inline-block;">
+            <img src="{{ composerPendingGif }}" style="max-width:220px; border:1px solid #1e5230; display:block;">
+            <button onclick="{{ handleRemovePendingGif }}" style="position:absolute; top:4px; right:4px; background:#0c2b17; color:#e8ddc3; border:none; width:22px; height:22px; cursor:pointer;">✕</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hasPendingImages }}">
+          <div style="padding:0 16px 12px; display:flex; gap:8px; flex-wrap:wrap;">
+            <sc-for list="{{ composerPendingImages }}" as="img" hint-placeholder-count="1">
+              <div style="position:relative;">
+                <img src="{{ img.url }}" style="width:88px; height:88px; object-fit:cover; border:1px solid #1e5230; display:block;">
+                <button onclick="{{ img.onRemove }}" style="position:absolute; top:2px; right:2px; background:#0c2b17; color:#e8ddc3; border:none; width:20px; height:20px; cursor:pointer; font-size:11px;">✕</button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-top:1px solid #1e5230;">
+          <sc-if value="{{ isCommissioner }}">
+            <label style="display:flex; align-items:center; gap:8px; font-family:'Barlow Condensed',sans-serif; color:#f2c94c; font-weight:600; font-size:13px; text-transform:uppercase; letter-spacing:0.04em; cursor:pointer;">
+              <input type="checkbox" checked="{{ composerIsRecap }}" onChange="{{ toggleRecap }}">
+              📌 Post as Commissioner Recap
+            </label>
+          </sc-if>
+          <sc-if value="{{ !isCommissioner }}"><span></span></sc-if>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <sc-if value="{{ editingPostId }}">
+              <a href="#" onclick="{{ handleCancelEdit }}" style="font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; color:#7fa98c; font-size:12.5px;">Cancel</a>
+            </sc-if>
+            <button onclick="{{ handlePost }}" disabled="{{ postDisabled }}" style="background:{{ postButtonBg }}; color:#0c2b17; border:none; font-family:'Anton',sans-serif; text-transform:uppercase; letter-spacing:0.03em; padding:11px 24px; font-size:14px; cursor:pointer;">{{ postButtonLabel }}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PINNED RECAP -->
+      <sc-if value="{{ hasPinnedPost }}">
+        <div class="mb-fade" style="margin-top:28px; background:#0c2b17; border:2px solid #f2c94c; box-shadow:0 6px 20px rgba(0,0,0,0.3);">
+          <div style="background:#f2c94c; padding:9px 16px; display:flex; align-items:center; gap:8px;">
+            <span style="font-family:'Space Mono',monospace; color:#0c2b17; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; font-weight:700;">📌 Commissioner Recap</span>
+          </div>
+          {{ pinnedRowEl }}
+        </div>
+      </sc-if>
+
+      <!-- FEED, grouped by week (most recent 2 groups expanded by default) -->
+      <div style="margin-top:28px;">
+        <sc-for list="{{ groupBlocks }}" as="grp" hint-placeholder-count="3">
+          {{ grp.blockEl }}
+        </sc-for>
+        <sc-if value="{{ feedEmpty }}">
+          <div style="text-align:center; color:#5f7d68; padding:60px 0; font-family:'Space Mono',monospace; font-size:13px;">No posts yet — be the first.</div>
+        </sc-if>
+      </div>
+
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- GIF PICKER MODAL -->
+  <sc-if value="{{ gifPickerOpen }}">
+    <div onclick="{{ handleCloseGifPicker }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:40; display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div onclick="{{ stopPropagation }}" style="background:#123f22; border:1px solid #1e5230; width:100%; max-width:560px; max-height:80vh; display:flex; flex-direction:column;">
+        <div style="display:flex; border-bottom:1px solid #1e5230;">
+          <button onclick="{{ handleGifTabSearch }}" style="flex:1; padding:14px; background:{{ searchTabBg }}; color:{{ searchTabColor }}; border:none; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; cursor:pointer;">Search Giphy</button>
+          <button onclick="{{ handleGifTabLibrary }}" style="flex:1; padding:14px; background:{{ libraryTabBg }}; color:{{ libraryTabColor }}; border:none; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; cursor:pointer;">Shared Library</button>
+          <button onclick="{{ handleCloseGifPicker }}" style="width:44px; background:transparent; border:none; color:#7fa98c; cursor:pointer; font-size:16px;">✕</button>
+        </div>
+
+        <sc-if value="{{ showGifSearchTab }}">
+          <div style="padding:12px; border-bottom:1px solid #1e5230;">
+            <input value="{{ gifQuery }}" onChange="{{ handleGifQueryChange }}" placeholder="Search GIPHY…" style="width:100%; background:#0c2b17; border:1px solid #1e5230; color:#e8ddc3; padding:10px 12px; font-family:'Barlow',sans-serif; font-size:14px;">
+          </div>
+        </sc-if>
+
+        <div style="overflow-y:auto; padding:12px;">
+          <sc-if value="{{ gifNeedsKey }}">
+            <div style="color:#9dc4aa; font-size:13px; text-align:center; padding:30px 10px; line-height:1.6;">Giphy search isn't configured yet — set <span style="font-family:'Space Mono',monospace; color:#e8ddc3;">window.NOCSBS_GIPHY_KEY</span> in the page's helmet. The Shared Library tab still works.</div>
+          </sc-if>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;" data-r="gifgrid">
+            <sc-for list="{{ gifTiles }}" as="g" hint-placeholder-count="9">
+              <img src="{{ g.thumbUrl }}" onclick="{{ g.onPick }}" style="width:100%; aspect-ratio:1; object-fit:cover; cursor:pointer; border:1px solid #1e5230;">
+            </sc-for>
+          </div>
+          <sc-if value="{{ gifEmptyMsg }}">
+            <div style="color:#5f7d68; font-size:13px; text-align:center; padding:30px 10px;">{{ gifEmptyMsg }}</div>
+          </sc-if>
+        </div>
+
+        <div style="padding:8px 12px; border-top:1px solid #1e5230; text-align:center;">
+          <span style="font-family:'Space Mono',monospace; color:#5f7d68; font-size:10px; letter-spacing:0.14em; text-transform:uppercase;">Powered by GIPHY</span>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- FOOTER -->
+  <div style="background:#0c2b17; border-top:2px solid #1e5230; padding:26px clamp(18px,4.5vw,40px); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <span style="font-family:'Barlow Condensed',sans-serif; color:#5f7d68; letter-spacing:0.14em; font-size:14px; text-transform:uppercase;">NO CSBS · No Chicken Shit Bullshit</span>
+    <span style="font-family:'Space Mono',monospace; color:#5f7d68; font-size:12px;">MINNESOTA · SINCE 2008</span>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      mb: null,
+      titleInput: '',
+      composerHasContent: false,
+      composerPendingGif: null,
+      composerPendingImages: [],
+      composerIsRecap: false,
+      editingPostId: null,
+      groupOverrides: {},
+      gifPickerOpen: false,
+      gifTab: 'search',
+      gifQuery: '',
+      gifResults: [],
+      gifLoading: false,
+      posting: false,
+    };
+    this._composerInitialHtml = '';
+    this._editRequestId = null;
+    this._editApplied = false;
+  }
+
+  componentDidMount() {
+    try {
+      // Fragment, not query string — Netlify's clean-URL rewrite (and this
+      // local dev server's) strips query strings on redirect, but never
+      // touches the fragment since it's not sent to the server at all.
+      const hash = (window.location.hash || '').replace(/^#/, '');
+      this._editRequestId = hash.startsWith('edit=') ? decodeURIComponent(hash.slice(5)) : null;
+    } catch { this._editRequestId = null; }
+    this._iv = setInterval(() => {
+      if (window.NOCSBS_MB) {
+        clearInterval(this._iv);
+        this._unsub = window.NOCSBS_MB.subscribe((mb) => this.handleMbUpdate(mb));
+        this.handleMbUpdate(window.NOCSBS_MB.getState());
+      }
+    }, 60);
+  }
+  componentWillUnmount() {
+    if (this._iv) clearInterval(this._iv);
+    if (this._unsub) this._unsub();
+  }
+
+  handleMbUpdate = (mb) => {
+    this.setState({ mb: { ...mb } });
+    if (this._editRequestId && !this._editApplied) {
+      const all = (mb.feedPosts || []).concat(mb.pinnedPost ? [mb.pinnedPost] : []);
+      const target = all.find((p) => p.id === this._editRequestId);
+      if (target) {
+        this._editApplied = true;
+        this.handleEditPost(target);
+      }
+    }
+  };
+
+  handleSignIn = () => { window.NOCSBS_MB && window.NOCSBS_MB.signIn(); };
+  handleSignOut = (e) => { e && e.preventDefault(); window.NOCSBS_MB && window.NOCSBS_MB.signOut(); };
+
+  handleTitleChange = (e) => this.setState({ titleInput: e.target.value });
+
+  setComposerRef = (el) => {
+    this._composerEl = el;
+    if (el && el.innerHTML !== this._composerInitialHtml) {
+      el.innerHTML = this._composerInitialHtml;
+    }
+  };
+  handleComposerInput = () => {
+    const text = this._composerEl ? this._composerEl.innerText.trim() : '';
+    this.setState({ composerHasContent: text.length > 0 });
+  };
+  runCmd = (cmd) => {
+    if (this._composerEl) this._composerEl.focus();
+    document.execCommand(cmd, false, null);
+    this.handleComposerInput();
+  };
+  cmdBold = () => this.runCmd('bold');
+  cmdItalic = () => this.runCmd('italic');
+  cmdUnderline = () => this.runCmd('underline');
+  cmdUL = () => this.runCmd('insertUnorderedList');
+  cmdOL = () => this.runCmd('insertOrderedList');
+  cmdIndent = () => this.runCmd('indent');
+  cmdOutdent = () => this.runCmd('outdent');
+
+  toggleRecap = () => this.setState((s) => ({ composerIsRecap: !s.composerIsRecap }));
+
+  resetComposer = () => {
+    this._composerInitialHtml = '';
+    if (this._composerEl) this._composerEl.innerHTML = '';
+    this._editRequestId = null;
+    this.setState({
+      composerHasContent: false, composerPendingGif: null, composerPendingImages: [],
+      composerIsRecap: false, editingPostId: null, titleInput: '',
+    });
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  };
+
+  handleEditPost = (post) => {
+    this._composerInitialHtml = post.bodyHtml || '';
+    if (this._composerEl) this._composerEl.innerHTML = this._composerInitialHtml;
+    this.setState({
+      editingPostId: post.id,
+      titleInput: post.title || '',
+      composerHasContent: true,
+      composerPendingGif: post.gifUrl || null,
+      composerPendingImages: (post.imageUrls || []).map((url) => ({ url })),
+      composerIsRecap: !!post.isCommissionerRecap,
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  handleCancelEdit = (e) => { e && e.preventDefault(); this.resetComposer(); };
+
+  handlePost = async () => {
+    const mb = window.NOCSBS_MB;
+    if (!mb || this.state.posting) return;
+    const title = this.state.titleInput.trim();
+    const bodyHtml = this._composerEl ? this._composerEl.innerHTML : '';
+    const hasText = this._composerEl && this._composerEl.innerText.trim().length > 0;
+    if (!title) return;
+    if (!hasText && !this.state.composerPendingGif && this.state.composerPendingImages.length === 0) return;
+    this.setState({ posting: true });
+    try {
+      const payload = {
+        title,
+        bodyHtml,
+        gifUrl: this.state.composerPendingGif,
+        imageUrls: this.state.composerPendingImages.map((i) => i.url),
+      };
+      if (this.state.editingPostId) {
+        await mb.updatePost(this.state.editingPostId, payload);
+      } else {
+        await mb.createPost({ ...payload, isCommissionerRecap: this.state.composerIsRecap });
+      }
+      this.resetComposer();
+    } finally {
+      this.setState({ posting: false });
+    }
+  };
+
+  handleImageChange = async (e) => {
+    const files = Array.from((e.target && e.target.files) || []);
+    e.target.value = '';
+    if (!files.length || !window.NOCSBS_MB) return;
+    const key = this.state.editingPostId || ('draft-' + Date.now());
+    for (const file of files) {
+      try {
+        const url = await window.NOCSBS_MB.uploadImage(key, file);
+        this.setState((s) => ({ composerPendingImages: [...s.composerPendingImages, { url }] }));
+      } catch (err) {
+        window.alert('Image upload failed: ' + (err && err.message ? err.message : err));
+      }
+    }
+  };
+  removePendingImage = (idx) => {
+    this.setState((s) => ({ composerPendingImages: s.composerPendingImages.filter((_, i) => i !== idx) }));
+  };
+
+  handleOpenGifPicker = () => this.setState({ gifPickerOpen: true, gifTab: 'search', gifResults: [] });
+  handleCloseGifPicker = () => this.setState({ gifPickerOpen: false });
+  handleGifTabSearch = () => this.setState({ gifTab: 'search' });
+  handleGifTabLibrary = () => this.setState({ gifTab: 'library' });
+  stopPropagation = (e) => e.stopPropagation();
+
+  handleGifQueryChange = (e) => {
+    const term = e.target.value;
+    this.setState({ gifQuery: term });
+    clearTimeout(this._gifDebounce);
+    this._gifDebounce = setTimeout(() => this.runGifSearch(term), 300);
+  };
+  runGifSearch = async (term) => {
+    if (!window.NOCSBS_MB || !window.NOCSBS_MB.hasGiphyKey()) return;
+    this.setState({ gifLoading: true });
+    try {
+      const results = await window.NOCSBS_MB.searchGifs(term);
+      this.setState({ gifResults: results || [], gifLoading: false });
+    } catch (err) {
+      this.setState({ gifLoading: false });
+    }
+  };
+
+  pickGifFromSearch = async (gif) => {
+    this.setState({ composerPendingGif: gif.images.fixed_height.url, gifPickerOpen: false });
+    try {
+      const existing = (this.state.mb && this.state.mb.gifLibrary) || [];
+      if (!existing.some((g) => g.giphyId === String(gif.id))) {
+        await window.NOCSBS_MB.addGifToLibrary(gif);
+      }
+    } catch {}
+  };
+  pickGifFromLibrary = (gifDoc) => {
+    this.setState({ composerPendingGif: gifDoc.url, gifPickerOpen: false });
+  };
+  handleRemovePendingGif = () => this.setState({ composerPendingGif: null });
+
+  toggleGroup = (key, currentlyExpanded) => {
+    this.setState((s) => ({ groupOverrides: { ...s.groupOverrides, [key]: !currentlyExpanded } }));
+  };
+
+  renderGifTile(gif) {
+    const thumb = gif.images && gif.images.fixed_height_small ? gif.images.fixed_height_small.url : (gif.images && gif.images.fixed_height ? gif.images.fixed_height.url : '');
+    return { thumbUrl: thumb, onPick: () => this.pickGifFromSearch(gif) };
+  }
+
+  // List rows are title + author + date only — full content lives on
+  // Post.dc.html, opened by clicking the row.
+  renderPostRow(post) {
+    const when = post.createdAt && post.createdAt.toDate ? post.createdAt.toDate() : (post.createdAt ? new Date(post.createdAt) : null);
+    const timeLabel = when ? when.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'just now';
+    return React.createElement('a', {
+      href: 'Post.dc.html#' + encodeURIComponent(post.id),
+      style: { display: 'block', background: '#123f22', border: '1px solid #1e5230', padding: '16px 18px' },
+    },
+      React.createElement('div', { style: { fontFamily: "'Barlow Condensed',sans-serif", color: '#fff', fontWeight: 700, fontSize: 18 } }, post.title || '(untitled)'),
+      React.createElement('div', { style: { fontFamily: "'Space Mono',monospace", color: '#7fa98c', fontSize: 11.5, marginTop: 6 } },
+        (post.authorName || post.authorEmail) + ' · ' + timeLabel + (post.editedAt ? ' · edited' : '')
+      )
+    );
+  }
+
+  renderPinnedRow(post) {
+    const when = post.createdAt && post.createdAt.toDate ? post.createdAt.toDate() : (post.createdAt ? new Date(post.createdAt) : null);
+    const timeLabel = when ? when.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'just now';
+    return React.createElement('a', { href: 'Post.dc.html#' + encodeURIComponent(post.id), style: { display: 'block', padding: '16px 18px' } },
+      React.createElement('div', { style: { fontFamily: "'Barlow Condensed',sans-serif", color: '#fff', fontWeight: 700, fontSize: 19 } }, post.title || '(untitled)'),
+      React.createElement('div', { style: { fontFamily: "'Space Mono',monospace", color: '#7fa98c', fontSize: 11.5, marginTop: 6 } },
+        (post.authorName || post.authorEmail) + ' · ' + timeLabel + (post.editedAt ? ' · edited' : '')
+      )
+    );
+  }
+
+  renderGroupBlock(group, expanded) {
+    const header = React.createElement('div', {
+      onClick: () => this.toggleGroup(group.key, expanded),
+      style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', padding: '13px 18px', background: '#123f22', border: '1px solid #1e5230', userSelect: 'none' },
+    },
+      React.createElement('span', { style: { fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700, color: '#f2c94c', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: 14 } },
+        group.label + ' — ' + group.posts.length + (group.posts.length === 1 ? ' post' : ' posts')
+      ),
+      React.createElement('span', { style: { color: '#7fa98c', fontSize: 13 } }, expanded ? '▾ Hide' : '▸ Show')
+    );
+    const rows = expanded
+      ? React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: 10, marginTop: 10 } },
+          group.posts.map((p) => React.createElement('div', { key: p.id }, this.renderPostRow(p)))
+        )
+      : null;
+    return React.createElement('div', { style: { marginBottom: 14 } }, header, rows);
+  }
+
+  renderVals() {
+    const mb = this.state.mb;
+    // Wait for mb.ready (set once onAuthStateChanged has genuinely resolved,
+    // not just once the module has loaded) before deciding what to show —
+    // otherwise there's a brief window where mb.user is still its initial
+    // null even for an already-signed-in member, and the sign-in gate
+    // flashes incorrectly before the real session comes back.
+    if (!mb || !mb.ready) return { isMember: false, showSignInGate: false, showNotRecognized: false, gifPickerOpen: false };
+
+    const user = mb.user;
+    const member = mb.member;
+    const isMember = !!(user && member && member.active);
+    const isCommissioner = !!(isMember && member.role === 'commissioner');
+
+    const feedAll = mb.feedPosts || [];
+    const pinnedId = mb.pinnedPost ? mb.pinnedPost.id : null;
+    const restPosts = feedAll.filter((p) => p.id !== pinnedId);
+
+    // Group non-pinned posts by (best-effort) fantasy week/season.
+    const groupMap = new Map();
+    const groupsOrdered = [];
+    for (const p of restPosts) {
+      const d = p.createdAt && p.createdAt.toDate ? p.createdAt.toDate() : (p.createdAt ? new Date(p.createdAt) : new Date());
+      const info = window.NOCSBS_MB.seasonWeekOf(d);
+      let g = groupMap.get(info.key);
+      if (!g) {
+        g = { key: info.key, label: info.label, order: info.order, posts: [] };
+        groupMap.set(info.key, g);
+        groupsOrdered.push(g);
+      }
+      g.posts.push(p);
+    }
+    groupsOrdered.sort((a, b) => b.order - a.order);
+    const groupBlocks = groupsOrdered.map((g, i) => {
+      const expanded = Object.prototype.hasOwnProperty.call(this.state.groupOverrides, g.key)
+        ? this.state.groupOverrides[g.key]
+        : i < 2;
+      return { key: g.key, blockEl: this.renderGroupBlock(g, expanded) };
+    });
+
+    let gifTiles = [];
+    let gifEmptyMsg = null;
+    const showGifSearchTab = this.state.gifTab === 'search';
+    if (this.state.gifPickerOpen) {
+      if (showGifSearchTab) {
+        gifTiles = (this.state.gifResults || []).map((g) => this.renderGifTile(g));
+        if (!this.state.gifLoading && gifTiles.length === 0 && window.NOCSBS_MB && window.NOCSBS_MB.hasGiphyKey()) {
+          gifEmptyMsg = this.state.gifQuery ? 'No results.' : 'Type to search GIPHY.';
+        }
+      } else {
+        gifTiles = (mb.gifLibrary || []).map((g) => ({ thumbUrl: g.url, onPick: () => this.pickGifFromLibrary(g) }));
+        if (gifTiles.length === 0) gifEmptyMsg = 'No GIFs added yet — search and pick one to start the library.';
+      }
+    }
+
+    const postDisabled = this.state.posting
+      || !this.state.titleInput.trim()
+      || (!this.state.composerHasContent && !this.state.composerPendingGif && this.state.composerPendingImages.length === 0);
+
+    return {
+      isMember,
+      isCommissioner,
+      showSignInGate: !user,
+      showNotRecognized: !!(user && !isMember),
+      signedInEmail: user ? user.email : '',
+      authError: mb.authError,
+      memberName: member ? member.name : (user ? user.name : ''),
+      memberRoleLabel: isCommissioner ? 'Commissioner' : (member && member.isAdmin ? 'Admin' : 'Member'),
+      userAvatarEl: user && user.photoURL
+        ? React.createElement('img', { src: user.photoURL, style: { width: 30, height: 30, borderRadius: '50%' } })
+        : React.createElement('div', { style: { width: 30, height: 30, borderRadius: '50%', background: '#1e5230' } }),
+      handleSignIn: this.handleSignIn,
+      handleSignOut: this.handleSignOut,
+
+      titleInput: this.state.titleInput,
+      handleTitleChange: this.handleTitleChange,
+      cmdBold: this.cmdBold, cmdItalic: this.cmdItalic, cmdUnderline: this.cmdUnderline,
+      cmdUL: this.cmdUL, cmdOL: this.cmdOL, cmdIndent: this.cmdIndent, cmdOutdent: this.cmdOutdent,
+      setComposerRef: this.setComposerRef,
+      handleComposerInput: this.handleComposerInput,
+      handleOpenGifPicker: this.handleOpenGifPicker,
+      handleImageChange: this.handleImageChange,
+      composerPendingGif: this.state.composerPendingGif,
+      handleRemovePendingGif: this.handleRemovePendingGif,
+      hasPendingImages: this.state.composerPendingImages.length > 0,
+      composerPendingImages: this.state.composerPendingImages.map((img, i) => ({ url: img.url, onRemove: () => this.removePendingImage(i) })),
+      composerIsRecap: this.state.composerIsRecap,
+      toggleRecap: this.toggleRecap,
+      editingPostId: this.state.editingPostId,
+      handleCancelEdit: this.handleCancelEdit,
+      handlePost: this.handlePost,
+      postDisabled,
+      postButtonBg: postDisabled ? '#5f7d68' : '#f2c94c',
+      postButtonLabel: this.state.posting ? 'Posting…' : (this.state.editingPostId ? 'Save Changes' : 'Post'),
+
+      hasPinnedPost: !!mb.pinnedPost,
+      pinnedRowEl: mb.pinnedPost ? this.renderPinnedRow(mb.pinnedPost) : null,
+      groupBlocks,
+      feedEmpty: isMember && groupBlocks.length === 0 && !mb.pinnedPost,
+
+      gifPickerOpen: this.state.gifPickerOpen,
+      showGifSearchTab,
+      gifNeedsKey: showGifSearchTab && window.NOCSBS_MB && !window.NOCSBS_MB.hasGiphyKey(),
+      searchTabBg: showGifSearchTab ? '#0c2b17' : 'transparent',
+      searchTabColor: showGifSearchTab ? '#f2c94c' : '#7fa98c',
+      libraryTabBg: !showGifSearchTab ? '#0c2b17' : 'transparent',
+      libraryTabColor: !showGifSearchTab ? '#f2c94c' : '#7fa98c',
+      handleGifTabSearch: this.handleGifTabSearch,
+      handleGifTabLibrary: this.handleGifTabLibrary,
+      handleCloseGifPicker: this.handleCloseGifPicker,
+      stopPropagation: this.stopPropagation,
+      gifQuery: this.state.gifQuery,
+      handleGifQueryChange: this.handleGifQueryChange,
+      gifTiles,
+      gifEmptyMsg,
+    };
+  }
+}
+</script>
+</body>
+</html>

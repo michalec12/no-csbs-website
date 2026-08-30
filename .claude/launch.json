@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "site-static",
+      "runtimeExecutable": "C:\\Users\\micha\\Desktop\\Claude Code\\.claude\\dev-server.cmd",
+      "runtimeArgs": [],
+      "port": 4173
+    }
+  ]
+}

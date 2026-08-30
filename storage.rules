@@ -1,0 +1,38 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isMember() {
+      // Safe .get('email', null) access -- see firestore.rules' isMember()
+      // for why: an anonymous-auth token genuinely omits the `email` key,
+      // and direct .email access throws on a truly-missing key.
+      return request.auth != null
+        && request.auth.token.get('email', null) != null
+        && firestore.exists(/databases/(default)/documents/league_members/$(request.auth.token.email))
+        && firestore.get(/databases/(default)/documents/league_members/$(request.auth.token.email)).data.active == true;
+    }
+
+    // The Kommissioner's Kompanion desktop app's identity — see
+    // firestore.rules for the matching helper + full provenance (a
+    // server-assigned identity via mintKompanionAppToken, replacing an
+    // earlier hardcoded-client-uid design that drifted and broke the app
+    // repeatedly). Needs its own branch since isMember() requires a
+    // token.email claim this identity doesn't have.
+    function isKompanionApp() {
+      return request.auth != null && request.auth.token.get('kompanionApp', false) == true;
+    }
+
+    match /message-board/{postId}/{fileName} {
+      allow read: if isMember() || isKompanionApp();
+      allow write: if (isMember() || isKompanionApp())
+        && request.resource.size < 8 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if isMember() || isKompanionApp();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

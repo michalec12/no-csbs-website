@@ -1,0 +1,177 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function memberDoc() {
+      return get(/databases/$(database)/documents/league_members/$(request.auth.token.email));
+    }
+
+    function isMember() {
+      // request.auth.token.get('email', null), not request.auth.token.email:
+      // an anonymous-auth token (the Kompanion app's identity) genuinely
+      // omits the `email` key rather than setting it to null, and Firestore
+      // rules throws ("Property email is undefined on object") on accessing
+      // a truly-missing map key instead of returning null. Every real member
+      // before now authenticated via Google Sign-In, which always includes
+      // an email claim, so this never surfaced until anonymous auth existed.
+      return request.auth != null
+        && request.auth.token.get('email', null) != null
+        && exists(/databases/$(database)/documents/league_members/$(request.auth.token.email))
+        && memberDoc().data.active == true;
+    }
+
+    // The commissioner (Brent) specifically — gates posting the pinned
+    // Commissioner Recap post type, not general moderation.
+    function isCommissioner() {
+      return isMember() && memberDoc().data.role == 'commissioner';
+    }
+
+    // Board admins (Josh + Brent) — can moderate/remove any content.
+    // Distinct from isCommissioner(): every commissioner is expected to also
+    // be an admin, but not every admin is the commissioner.
+    function isAdmin() {
+      return isMember() && memberDoc().data.isAdmin == true;
+    }
+
+    // The Kommissioner's Kompanion desktop app's identity — this identity has
+    // no token.email claim, so it can't satisfy isMember()/isCommissioner()
+    // and needs its own explicit branches below. Scoped narrowly to
+    // commissioner-recap posts, the shared GIF library, and read-only
+    // manager_history, per the brief's "write access scoped narrowly to the
+    // message board page only."
+    //
+    // Identity is assigned by mintKompanionAppToken (functions/src/index.ts)
+    // -- a Cloud Function gated on a fixed shared secret baked into the app
+    // -- rather than trusted from whatever uid a client's local anonymous-
+    // auth session happens to generate. This replaced a hardcoded-client-uid
+    // design that drifted and broke the app four times (see
+    // WEBSITE_SESSIONS.md's 2026-07-30 entries for the full incident
+    // history): a fresh install, reinstall, or profile reset always minted a
+    // different uid, silently breaking every existing rule reference to it.
+    // The server-assigned identity is immune to all of that -- same result
+    // on every machine, every reinstall, forever.
+    function isKompanionApp() {
+      return request.auth != null && request.auth.token.get('kompanionApp', false) == true;
+    }
+
+    // Roster / allowlist. Members can read it (to render author info); only
+    // edited by an admin (in practice, via the Firebase console or a future
+    // admin tool — no write path is exposed from the message board UI itself).
+    // NOTE: this grants isKompanionApp() read access to real member EMAIL
+    // ADDRESSES (doc IDs here are lowercase emails) -- a more sensitive
+    // grant than the app's other read scopes (names, gif picks), since it's
+    // real contact PII, not just league-internal display data. Needed for
+    // the opt-in "Notify League by Email" feature (mailto: BCC using this
+    // same real data, per the brief -- see WEBSITE_SESSIONS.md). Still
+    // read-only, still scoped to just this one collection.
+    match /league_members/{email} {
+      allow read: if isMember() || isKompanionApp();
+      allow write: if isAdmin();
+    }
+
+    // Message board posts, including the commissioner's pinned recaps.
+    match /posts/{postId} {
+      allow read: if isMember() || isKompanionApp();
+      allow create: if (isMember()
+          && request.resource.data.authorEmail == request.auth.token.email
+          && request.resource.data.title is string
+          && request.resource.data.title.size() > 0
+          && (request.resource.data.isCommissionerRecap != true || isCommissioner()))
+        || (isKompanionApp()
+          && request.resource.data.isCommissionerRecap == true
+          && request.resource.data.title is string
+          && request.resource.data.title.size() > 0);
+      allow update: if (isMember()
+          && (resource.data.authorEmail == request.auth.token.email || isAdmin())
+          && request.resource.data.title is string
+          && request.resource.data.title.size() > 0)
+        || (isKompanionApp() && resource.data.isCommissionerRecap == true);
+      allow delete: if isMember()
+          && (resource.data.authorEmail == request.auth.token.email || isAdmin())
+        || (isKompanionApp() && resource.data.isCommissionerRecap == true);
+
+      // Replies — any member can add one; only the reply's own author or an
+      // admin can remove it. No editing (keep it simple: delete + repost).
+      // Kompanion's reply-delete is scoped to replies under ITS OWN recap
+      // posts only (the get() below), so a full post delete can cascade to
+      // "no visible trace left behind" per the brief, without a broader
+      // grant to remove any member's reply anywhere.
+      match /replies/{replyId} {
+        allow read: if isMember() || isKompanionApp();
+        allow create: if isMember() && request.resource.data.authorEmail == request.auth.token.email;
+        allow update: if false;
+        allow delete: if isMember()
+            && (resource.data.authorEmail == request.auth.token.email || isAdmin())
+          || (isKompanionApp()
+            && get(/databases/$(database)/documents/posts/$(postId)).data.isCommissionerRecap == true);
+      }
+    }
+
+    // Shared GIF library — anyone can add (no approval step, per spec);
+    // an admin can remove one. Kompanion can add too (its own GIF picker
+    // needs the same "picks auto-join the shared library" behavior as the
+    // message board's), but was never asked to remove entries.
+    match /gifLibrary/{gifId} {
+      allow read: if isMember() || isKompanionApp();
+      allow create: if (isMember() && request.resource.data.addedByEmail == request.auth.token.email)
+        || isKompanionApp();
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // Manager-vs-manager history + roster crosswalk, seeded from the
+    // site's own league-data.js/records-data.js. Read-only, no write path
+    // from any client (admin-seeded via the Firestore MCP tools). The
+    // getManagerHistory Cloud Function already reads this via the Admin
+    // SDK (bypasses rules); this narrow read grant is specifically for the
+    // Kompanion app's own ESPN-team-to-manager name matching, which needs
+    // the roster doc directly from the renderer (not through a callable).
+    match /manager_history/{document} {
+      allow read: if isKompanionApp();
+      allow write: if false;
+    }
+
+    // In-season ESPN data (standings, weekly scores, awards, power rankings
+    // and computed playoff/title odds), refreshed by the refreshSeasonData /
+    // refreshLiveScores scheduled functions in functions/src/season. Those
+    // run through the Admin SDK, which bypasses rules entirely -- hence
+    // write: if false here, with no client write path at all.
+    //
+    // PUBLIC READ -- deliberately, and the only public read in this file.
+    // The rest of the site (Home, Manager Records, The Pantheon, ...) is
+    // already world-readable static data; this is that same kind of league
+    // standings/score data, just current instead of historical, so gating it
+    // would be MORE restrictive than what nocsbs.com already publishes. It
+    // carries no emails, no league_members data and no message-board
+    // content, all of which stay member-gated above.
+    match /season_data/{seasonId} {
+      allow read: if true;
+      allow write: if false;
+
+      match /weeks/{week} {
+        allow read: if true;
+        allow write: if false;
+      }
+
+      // The ONE writable path under season_data. Some ESPN team logos live on
+      // mystique-api.fantasy.espn.com, which 401s without an ESPN session --
+      // the refresh function has no session and can't fetch them, so those
+      // logos would render broken for every visitor. The Kompanion app does
+      // have a session, so it seeds them here (as downscaled data: URLs) and
+      // the function substitutes them into standings on its next run.
+      //
+      // Write is scoped to isKompanionApp() only -- no member, and certainly
+      // no anonymous visitor, can write here. Public read because the site
+      // renders these, same as the rest of season_data.
+      match /logos/{teamId} {
+        allow read: if true;
+        allow write: if isKompanionApp();
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

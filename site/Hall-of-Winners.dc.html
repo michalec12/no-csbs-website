@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Barlow:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="league-data.js"></script>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#0c2b17;font-family:'Barlow',sans-serif;}
+  a{text-decoration:none;color:inherit;}
+
+  @media (max-width:760px){ [data-r="c2"]{ grid-template-columns:1fr !important; } }
+  @media (max-width:880px){ [data-r="c3"],[data-r="c5"],[data-r="c5nav"]{ grid-template-columns:repeat(2,1fr) !important; } }
+  @media (max-width:520px){ [data-r="c3"],[data-r="c5"],[data-r="c5nav"]{ grid-template-columns:1fr !important; } }
+  @media (max-width:900px){
+    [data-r="navbar"]{ height:auto !important; padding-top:10px !important; padding-bottom:10px !important; padding-left:16px !important; padding-right:16px !important; flex-wrap:wrap !important; gap:6px 14px !important; }
+    [data-r="navlinks"]{ flex-wrap:wrap !important; gap:8px 12px !important; font-size:11.5px !important; }
+  }
+</style>
+</helmet>
+
+<div style="background:#0c2b17; min-height:100vh; font-family:'Barlow',sans-serif;">
+
+  <!-- NAV -->
+  <div style="background:#0c2b17; border-bottom:2px solid #e8ddc3; padding:0 40px; height:70px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:20;" data-r="navbar">
+    <a href="Home.dc.html" style="font-family:'Anton',sans-serif; color:#e8ddc3; letter-spacing:0.06em; font-size:26px;">NO CSBS</a>
+    <div style="display:flex; gap:14px; font-family:'Barlow Condensed',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; font-size:12.5px;" data-r="navlinks">
+      <a href="Home.dc.html" style="color:#cfe0d3;">Home</a>
+      <a href="This-Season.dc.html" style="color:#cfe0d3;">This Season</a>
+      <a href="Message-Board.dc.html" style="color:#cfe0d3;">Message Board</a>
+      <a href="Members.dc.html" style="color:#cfe0d3;">Members</a>
+      <a href="Hall-of-Winners.dc.html" style="color:#f2c94c;">Hall of Winners</a>
+      <a href="Draft-History.dc.html" style="color:#cfe0d3;">Draft Room</a>
+      <a href="League-Manager-Records.dc.html" style="color:#cfe0d3;">Manager Records</a>
+      <a href="The-Pantheon.dc.html" style="color:#cfe0d3;">The Pantheon</a>
+      <a href="Pit-of-Despair.dc.html" style="color:#cfe0d3;">Pit of Despair</a>
+      <a href="Constitution.dc.html" style="color:#cfe0d3;">Constitution</a>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div style="background:#123f22; padding:52px clamp(18px,4.5vw,40px); border-bottom:2px solid #1e5230; text-align:center;">
+    <div style="font-size:clamp(30px,6vw,44px);">🏆</div>
+    <div style="font-family:'Space Mono',monospace; color:#f2c94c; letter-spacing:0.24em; font-size:13px; text-transform:uppercase; margin-top:8px;">Champions of the NO CSBS</div>
+    <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(40px,8.5vw,76px); line-height:0.9; margin-top:6px;">HALL OF WINNERS</div>
+    <div style="color:#9dc4aa; font-size:17px; margin-top:10px; max-width:640px; margin-left:auto; margin-right:auto; line-height:1.5;">The only names allowed to touch the trophy. {{ seasonCount }} champions, one line of succession.</div>
+  </div>
+
+  <!-- DYNASTY LEADERBOARD -->
+  <div style="background:#0c2b17; padding:52px clamp(18px,4.5vw,40px);">
+    <div style="max-width:1100px; margin:0 auto;">
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(25px,4.5vw,34px); text-align:center;">THE DYNASTY BOARD</div>
+      <div style="color:#7fa98c; font-size:14px; text-align:center; margin-top:4px; max-width:640px; margin-left:auto; margin-right:auto; line-height:1.5;">Ranked by titles that count. World Championship Era crowns (the 8-team years) are tallied separately with a <span style="color:#c9a24a;">★</span>.</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:16px; margin-top:28px;">
+        <sc-for list="{{ dynasty }}" as="d" hint-placeholder-count="8">
+          <div style="background:{{ d.bg }}; border:1px solid {{ d.border }}; padding:22px 20px;">
+            <div style="display:flex; align-items:baseline; gap:8px;">
+              <div style="font-family:'Anton',sans-serif; color:{{ d.numColor }}; font-size:52px; line-height:0.9;">{{ d.count }}<span style="font-size:20px;">×</span></div>
+              <sc-if value="{{ d.hasWC }}" hint-placeholder-val="{{ false }}">
+                <span style="font-family:'Space Mono',monospace; color:#c9a24a; font-size:12px; border:1px solid #6b5628; padding:3px 7px;">+{{ d.wc }} WC ★</span>
+              </sc-if>
+            </div>
+            <div style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; font-size:21px; text-transform:uppercase; margin-top:6px; line-height:1;">{{ d.name }}</div>
+            <div style="font-family:'Space Mono',monospace; color:#8fb89c; font-size:12px; margin-top:8px;">{{ d.years }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- ERAS -->
+  <div style="background:#08210f; padding:52px clamp(18px,4.5vw,40px); border-top:1px solid #123f22;">
+    <div style="max-width:1100px; margin:0 auto;">
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(25px,4.5vw,34px); text-align:center;">THE THREE ERAS</div>
+      <div style="color:#7fa98c; font-size:14px; text-align:center; margin-top:4px;">Eighteen seasons, told in three chapters.</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; margin-top:28px;">
+        <sc-for list="{{ eras }}" as="e" hint-placeholder-count="3">
+          <div style="background:#0f331f; border:1px solid #1e5230; border-top:4px solid {{ e.accent }}; padding:24px 22px;">
+            <div style="font-family:'Space Mono',monospace; color:{{ e.accent }}; font-size:12px; letter-spacing:0.16em; text-transform:uppercase;">{{ e.range }}</div>
+            <div style="font-family:'Anton',sans-serif; color:#fff; font-size:30px; margin-top:8px; line-height:0.95;">{{ e.name }}</div>
+            <div style="display:flex; gap:8px; margin-top:10px; font-family:'Space Mono',monospace; font-size:11px;">
+              <span style="background:#08210f; border:1px solid #1e5230; color:#cfe0d3; padding:3px 9px;">{{ e.teams }} TEAMS</span>
+              <span style="background:#08210f; border:1px solid #1e5230; color:#cfe0d3; padding:3px 9px;">{{ e.draftUpper }}</span>
+            </div>
+            <div style="color:#9dc4aa; font-size:14px; margin-top:12px; line-height:1.55;">{{ e.blurb }}</div>
+            <div style="font-family:'Space Mono',monospace; color:#5f8a6d; font-size:12px; margin-top:12px;">{{ e.titleCount }} titles crowned</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAMPIONS TIMELINE -->
+  <div style="background:#08210f; padding:56px clamp(18px,4.5vw,40px);">
+    <div style="max-width:1000px; margin:0 auto;">
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(25px,4.5vw,34px); text-align:center; margin-bottom:32px;">THE LINE OF SUCCESSION</div>
+      <sc-for list="{{ eraGroups }}" as="g" hint-placeholder-count="3">
+      <div onClick="{{ g.onToggle }}" style="display:flex; align-items:center; gap:14px; margin:30px 0 18px; cursor:pointer; user-select:none;">
+        <div style="font-family:'Space Mono',monospace; color:{{ g.accent }}; font-size:24px; width:26px; text-align:center; line-height:1;">{{ g.caret }}</div>
+        <div style="font-family:'Anton',sans-serif; color:{{ g.accent }}; font-size:22px; letter-spacing:0.04em; white-space:nowrap;">{{ g.name }}</div>
+        <div style="font-family:'Space Mono',monospace; color:#5f8a6d; font-size:12px; white-space:nowrap;">{{ g.range }} · {{ g.teams }} teams · {{ g.titleWord }}</div>
+        <div style="height:2px; flex:1; background:{{ g.accent }}; opacity:0.35;"></div>
+      </div>
+      <sc-if value="{{ g.open }}" hint-placeholder-val="{{ false }}">
+      <sc-for list="{{ g.champs }}" as="c" hint-placeholder-count="6">
+        <div style="display:flex; gap:22px; align-items:stretch; margin-bottom:14px;">
+          <div style="flex:0 0 120px; background:{{ c.yearBg }}; border:1px solid {{ c.yearBorder }}; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:14px 0;">
+            <div style="font-family:'Anton',sans-serif; color:{{ c.yearColor }}; font-size:clamp(27px,5vw,38px); line-height:0.9;">{{ c.year }}</div>
+            <sc-if value="{{ c.isLatest }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:'Space Mono',monospace; color:#0c2b17; background:#f2c94c; font-size:9px; padding:2px 7px; margin-top:6px; letter-spacing:0.1em;">REIGNING</div>
+            </sc-if>
+            <sc-if value="{{ c.isWC }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:'Space Mono',monospace; color:#c9a24a; font-size:9px; padding:2px 7px; margin-top:6px; letter-spacing:0.1em; border:1px solid #6b5628;">WC ★</div>
+            </sc-if>
+          </div>
+          <div style="flex:1 1 auto; background:#0f331f; border:1px solid #1e5230; border-left:4px solid #f2c94c; padding:18px 22px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <div>
+              <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;">
+                <span style="font-family:'Anton',sans-serif; color:#fff; font-size:28px;">{{ c.champName }}</span>
+                <span style="font-family:'Space Mono',monospace; color:#f2c94c; font-size:13px;">{{ c.champRec }}</span>
+              </div>
+              <div style="font-family:'Barlow Condensed',sans-serif; font-style:italic; color:#9dc4aa; font-weight:600; font-size:18px; margin-top:2px;">"{{ c.champTeam }}"</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:'Space Mono',monospace; color:#5f8a6d; font-size:10px; letter-spacing:0.12em; text-transform:uppercase;">Runner-up</div>
+              <div style="font-family:'Barlow Condensed',sans-serif; color:#cfe0d3; font-weight:600; font-size:17px;">{{ c.ruName }}</div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+      </sc-if>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="background:#0c2b17; border-top:2px solid #1e5230; padding:26px clamp(18px,4.5vw,40px); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <span style="font-family:'Barlow Condensed',sans-serif; color:#5f7d68; letter-spacing:0.14em; font-size:14px; text-transform:uppercase;">NO CSBS · No Chicken Shit Bullshit</span>
+    <span style="font-family:'Space Mono',monospace; color:#5f7d68; font-size:12px;">MINNESOTA · SINCE 2008</span>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props){ super(props); this.state = { openEras: null }; }
+  componentDidMount(){
+    if(!window.NOCSBS){
+      this._iv = setInterval(()=>{ if(window.NOCSBS){ clearInterval(this._iv); this.forceUpdate(); } }, 60);
+    }
+  }
+  componentWillUnmount(){ if(this._iv) clearInterval(this._iv); }
+  renderVals(){
+    const D = window.NOCSBS;
+    if(!D) return {};
+    const nm = id => D.name[id];
+    const champNameOf = c => c.champCo ? (nm(c.champId) + " & " + nm(c.champCo)) : nm(c.champId);
+    // dynasty counts, split by era weight (WC-era titles tallied separately)
+    const counts = {};
+    D.champions.forEach(c => {
+      [c.champId, c.champCo].filter(Boolean).forEach(id => {
+        counts[id] = counts[id] || { id, weighted:0, wc:0, years:[], firstWeighted:9999 };
+        counts[id].years.push(c.isWC ? (c.champYear + "★") : c.champYear);
+        if (c.isWC) counts[id].wc++;
+        else { counts[id].weighted++; counts[id].firstWeighted = Math.min(counts[id].firstWeighted, c.year); }
+      });
+    });
+    const dynasty = Object.values(counts)
+      .sort((a,b)=> b.weighted-a.weighted || b.wc-a.wc || a.firstWeighted-b.firstWeighted)
+      .map((d,i)=>({
+        count: d.weighted,
+        hasWC: d.wc > 0,
+        wc: d.wc,
+        name: nm(d.id),
+        years: d.years.join(", "),
+        bg: i===0 ? "#183f26" : "#0f331f",
+        border: i===0 ? "#f2c94c" : "#1e5230",
+        numColor: "#f2c94c"
+      }));
+
+    // eras explainer
+    const titlesPerEra = {};
+    D.champions.forEach(c => { titlesPerEra[c.eraId] = (titlesPerEra[c.eraId]||0)+1; });
+    const eras = D.eras.map(e => ({
+      name: e.name, range: e.range, teams: e.teams, accent: e.accent,
+      draftUpper: e.draft.toUpperCase(), blurb: e.blurb, titleCount: titlesPerEra[e.id] || 0
+    }));
+
+    // succession grouped by era (newest era first, newest champ first)
+    const latest = D.champions[D.champions.length-1].year;
+    const mkChamp = c => ({
+      year: c.champYear,
+      champName: champNameOf(c),
+      champTeam: c.champTeam,
+      champRec: c.champRec,
+      ruName: nm(c.ruId),
+      isLatest: c.year === latest,
+      isWC: c.isWC,
+      yearBg: c.year === latest ? "#f2c94c" : "#123f22",
+      yearBorder: c.year === latest ? "#f2c94c" : "#1e5230",
+      yearColor: c.year === latest ? "#0c2b17" : "#e8ddc3"
+    });
+    // succession grouped by era (newest era first, newest champ first) — collapsible
+    const openEras = this.state.openEras || {};
+    const eraGroups = [...D.eras].reverse().map(e => {
+      const champs = D.champions.filter(c => c.eraId === e.id);
+      const yrs = champs.map(c => c.champYear);
+      const range = yrs.length ? (Math.min(...yrs) + (yrs.length>1 ? " \u2013 " + Math.max(...yrs) : "")) : e.range;
+      const open = (e.id in openEras) ? openEras[e.id] : false;
+      const n = champs.length;
+      return {
+        id: e.id, name: e.name, range, teams: e.teams, accent: e.accent,
+        titleWord: n + (n===1 ? " title" : " titles"),
+        open, caret: open ? "\u25be" : "\u25b8",
+        onToggle: () => this.setState(st => ({ openEras: { ...(st.openEras||{}), [e.id]: !((st.openEras && e.id in st.openEras) ? st.openEras[e.id] : false) } })),
+        champs: champs.reverse().map(mkChamp)
+      };
+    }).filter(g => g.champs.length);
+
+    return { seasonCount: D.meta.seasonsPlayed, dynasty, eras, eraGroups };
+  }
+}
+</script>
+</body>
+</html>

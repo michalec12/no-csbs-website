@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Barlow:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="league-data.js"></script>
+<script src="records-data.js"></script>
+<script src="pantheon-data.js"></script>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#0c2b17;font-family:'Barlow',sans-serif;}
+  a{text-decoration:none;color:inherit;}
+
+  @media (max-width:760px){ [data-r="c2"]{ grid-template-columns:1fr !important; } }
+  @media (max-width:880px){ [data-r="c3"],[data-r="c5"],[data-r="c5nav"]{ grid-template-columns:repeat(2,1fr) !important; } }
+  @media (max-width:520px){ [data-r="c3"],[data-r="c5"],[data-r="c5nav"]{ grid-template-columns:1fr !important; } }
+  @media (max-width:900px){
+    [data-r="navbar"]{ height:auto !important; padding-top:10px !important; padding-bottom:10px !important; padding-left:16px !important; padding-right:16px !important; flex-wrap:wrap !important; gap:6px 14px !important; }
+    [data-r="navlinks"]{ flex-wrap:wrap !important; gap:8px 12px !important; font-size:11.5px !important; }
+  }
+</style>
+</helmet>
+
+<div style="background:#0c2b17; min-height:100vh; font-family:'Barlow',sans-serif;">
+
+  <!-- NAV -->
+  <div style="background:#0c2b17; border-bottom:2px solid #e8ddc3; padding:0 40px; height:70px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:20;" data-r="navbar">
+    <a href="Home.dc.html" style="font-family:'Anton',sans-serif; color:#e8ddc3; letter-spacing:0.06em; font-size:26px;">NO CSBS</a>
+    <div style="display:flex; gap:14px; font-family:'Barlow Condensed',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; font-size:12.5px;" data-r="navlinks">
+      <a href="Home.dc.html" style="color:#cfe0d3;">Home</a>
+      <a href="This-Season.dc.html" style="color:#cfe0d3;">This Season</a>
+      <a href="Message-Board.dc.html" style="color:#cfe0d3;">Message Board</a>
+      <a href="Members.dc.html" style="color:#cfe0d3;">Members</a>
+      <a href="Hall-of-Winners.dc.html" style="color:#cfe0d3;">Hall of Winners</a>
+      <a href="Draft-History.dc.html" style="color:#cfe0d3;">Draft Room</a>
+      <a href="League-Manager-Records.dc.html" style="color:#cfe0d3;">Manager Records</a>
+      <a href="The-Pantheon.dc.html" style="color:#cfe0d3;">The Pantheon</a>
+      <a href="Pit-of-Despair.dc.html" style="color:#cf6b45;">Pit of Despair</a>
+      <a href="Constitution.dc.html" style="color:#cfe0d3;">Constitution</a>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div style="background:#071108; padding:56px clamp(18px,4.5vw,40px); border-bottom:2px solid #3a1e14; background-image:radial-gradient(circle at 50% 120%, #2a1109 0%, #071108 62%);">
+    <div style="max-width:1200px; margin:0 auto; text-align:center;">
+      <div style="font-size:clamp(30px,6vw,44px);">💀</div>
+      <div style="font-family:'Space Mono',monospace; color:#cf6b45; letter-spacing:0.24em; font-size:13px; text-transform:uppercase; margin-top:6px;">Where losers are immortalized</div>
+      <div style="font-family:'Anton',sans-serif; color:#f0e4dd; font-size:clamp(40px,8.5vw,76px); line-height:0.9; margin-top:6px;">THE PIT OF DESPAIR</div>
+      <div style="color:#b39a8f; font-size:17px; margin-top:12px; max-width:680px; margin-left:auto; margin-right:auto; line-height:1.5;">The record book nobody wants a page in. Blowouts absorbed, points squandered, and the sacred ledger of punishments.</div>
+      <div style="display:inline-flex; align-items:center; gap:9px; margin-top:16px; background:#170f0c; border:1px solid #3a1e14; padding:7px 14px;">
+        <span style="display:inline-flex; align-items:center; justify-content:center; width:19px; height:19px; border-radius:50%; background:#3a1e14; border:1px solid #cf6b45; flex:0 0 auto;"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="4.2" ry="5.2" fill="none" stroke="#cf6b45" stroke-width="2"></ellipse><line x1="12" y1="11" x2="12" y2="21" stroke="#cf6b45" stroke-width="2.4" stroke-linecap="round"></line></svg></span>
+        <span style="font-family:'Space Mono',monospace; color:#b39a8f; font-size:11px; letter-spacing:0.1em; text-transform:uppercase;">The Wooden Spoon — marks a record set in a season this manager finished last</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEGATIVE SUPERLATIVES -->
+  <div style="background:#0c2b17; padding:48px clamp(18px,4.5vw,40px) 20px;">
+    <div style="max-width:1200px; margin:0 auto;">
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:18px;">
+        <sc-for list="{{ supers }}" as="s" hint-placeholder-count="6">
+          <div style="background:#170f0c; border:1px solid #3a1e14; border-top:4px solid #cf6b45; padding:22px 20px;">
+            <div style="font-family:'Space Mono',monospace; color:#a67c6c; font-size:11px; letter-spacing:0.14em; text-transform:uppercase;">{{ s.label }}</div>
+            <div style="font-family:'Anton',sans-serif; color:#cf6b45; font-size:clamp(30px,6vw,44px); line-height:0.95; margin-top:8px;">{{ s.big }}</div>
+            <div style="font-family:'Barlow Condensed',sans-serif; color:#f0e4dd; font-weight:700; font-size:20px; text-transform:uppercase; margin-top:6px; line-height:1.05;">{{ s.who }}</div>
+            <div style="color:#a67c6c; font-size:13px; margin-top:4px;">{{ s.detail }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- REAL: SINGLE-GAME LOWS + BLOWOUT LOSSES -->
+  <div style="background:#0c2b17; padding:36px 40px 20px;">
+    <div style="max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:30px;" data-r="c2">
+      <div>
+        <div style="font-family:'Anton',sans-serif; color:#fff; font-size:30px; margin-bottom:4px;">LOWEST SINGLE GAMES</div>
+        <div style="color:#a67c6c; font-size:13px; margin-bottom:16px;">Regular-season faceplants, all-time. They showed up. Barely.</div>
+        <sc-for list="{{ lowest }}" as="p" hint-placeholder-count="6">
+          <div style="display:flex; align-items:center; gap:14px; background:#170f0c; border:1px solid #3a1e14; padding:11px 15px; margin-bottom:7px;">
+            <div style="font-family:'Anton',sans-serif; color:#cf6b45; font-size:20px; width:30px;">{{ p.rank }}</div>
+            <div style="flex:1;">
+              <div style="font-family:'Barlow Condensed',sans-serif; color:#f0e4dd; font-weight:700; font-size:18px;">{{ p.name }}<sc-if value="{{ p.lastPlace }}" hint-placeholder-val="{{ false }}"><span title="Finished last place this season" style="display:inline-flex; align-items:center; justify-content:center; width:19px; height:19px; border-radius:50%; background:#3a1e14; border:1px solid #cf6b45; flex:0 0 auto; margin-left:7px; vertical-align:middle;"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="4.2" ry="5.2" fill="none" stroke="#cf6b45" stroke-width="2"></ellipse><line x1="12" y1="11" x2="12" y2="21" stroke="#cf6b45" stroke-width="2.4" stroke-linecap="round"></line></svg></span></sc-if></div>
+              <div style="color:#a67c6c; font-size:12.5px;">{{ p.when }} · lost to {{ p.opp }}</div>
+            </div>
+            <div style="font-family:'Anton',sans-serif; color:#e8c9bd; font-size:24px;">{{ p.score }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div>
+        <div style="font-family:'Anton',sans-serif; color:#fff; font-size:30px; margin-bottom:4px;">BIGGEST BEATDOWNS TAKEN</div>
+        <div style="color:#a67c6c; font-size:13px; margin-bottom:16px;">The widest margins ever suffered. Look away.</div>
+        <sc-for list="{{ beatdowns }}" as="p" hint-placeholder-count="6">
+          <div style="display:flex; align-items:center; gap:14px; background:#170f0c; border:1px solid #3a1e14; padding:11px 15px; margin-bottom:7px;">
+            <div style="font-family:'Anton',sans-serif; color:#cf6b45; font-size:20px; width:30px;">{{ p.rank }}</div>
+            <div style="flex:1;">
+              <div style="font-family:'Barlow Condensed',sans-serif; color:#f0e4dd; font-weight:700; font-size:18px;">{{ p.loser }}<sc-if value="{{ p.lastPlace }}" hint-placeholder-val="{{ false }}"><span title="Finished last place this season" style="display:inline-flex; align-items:center; justify-content:center; width:19px; height:19px; border-radius:50%; background:#3a1e14; border:1px solid #cf6b45; flex:0 0 auto; margin-left:7px; vertical-align:middle;"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="4.2" ry="5.2" fill="none" stroke="#cf6b45" stroke-width="2"></ellipse><line x1="12" y1="11" x2="12" y2="21" stroke="#cf6b45" stroke-width="2.4" stroke-linecap="round"></line></svg></span></sc-if></div>
+              <div style="color:#a67c6c; font-size:12.5px;">{{ p.when }} · {{ p.score }} vs {{ p.winner }} ({{ p.oppScore }})</div>
+            </div>
+            <div style="font-family:'Space Mono',monospace; color:#e8c9bd; font-size:16px;">−{{ p.margin }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- TWO COLUMN: most PA + fewest PF -->
+  <div style="background:#0c2b17; padding:36px 40px 52px;">
+    <div style="max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:30px;" data-r="c2">
+      <div>
+        <div style="font-family:'Anton',sans-serif; color:#fff; font-size:30px; margin-bottom:4px;">MOST POINTS AGAINST, ONE SEASON</div>
+        <div style="color:#a67c6c; font-size:13px; margin-bottom:16px;">The universe conspired against them.</div>
+        <sc-for list="{{ topPA }}" as="p" hint-placeholder-count="6">
+          <div style="display:flex; align-items:center; gap:14px; background:#170f0c; border:1px solid #3a1e14; padding:12px 16px; margin-bottom:8px;">
+            <div style="font-family:'Anton',sans-serif; color:#cf6b45; font-size:22px; width:34px;">{{ p.rank }}</div>
+            <div style="flex:1;">
+              <div style="font-family:'Barlow Condensed',sans-serif; color:#f0e4dd; font-weight:700; font-size:18px;">{{ p.name }} <span style="color:#a67c6c; font-weight:500;">· {{ p.year }}</span><sc-if value="{{ p.lastPlace }}" hint-placeholder-val="{{ false }}"><span title="Finished last place this season" style="display:inline-flex; align-items:center; justify-content:center; width:19px; height:19px; border-radius:50%; background:#3a1e14; border:1px solid #cf6b45; flex:0 0 auto; margin-left:7px; vertical-align:middle;"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="4.2" ry="5.2" fill="none" stroke="#cf6b45" stroke-width="2"></ellipse><line x1="12" y1="11" x2="12" y2="21" stroke="#cf6b45" stroke-width="2.4" stroke-linecap="round"></line></svg></span></sc-if></div>
+              <div style="color:#a67c6c; font-size:13px; font-style:italic;">"{{ p.team }}"</div>
+            </div>
+            <div style="font-family:'Space Mono',monospace; color:#e8c9bd; font-size:18px;">{{ p.pa }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div>
+        <div style="font-family:'Anton',sans-serif; color:#fff; font-size:30px; margin-bottom:4px;">FEWEST POINTS, ONE SEASON</div>
+        <div style="color:#a67c6c; font-size:13px; margin-bottom:16px;">Offense not found.</div>
+        <sc-for list="{{ fewPF }}" as="f" hint-placeholder-count="6">
+          <div style="display:flex; align-items:center; gap:14px; background:#170f0c; border:1px solid #3a1e14; padding:12px 16px; margin-bottom:8px;">
+            <div style="font-family:'Anton',sans-serif; color:#cf6b45; font-size:22px; width:34px;">{{ f.rank }}</div>
+            <div style="flex:1;">
+              <div style="font-family:'Barlow Condensed',sans-serif; color:#f0e4dd; font-weight:700; font-size:18px;">{{ f.name }} <span style="color:#a67c6c; font-weight:500;">· {{ f.year }}</span><sc-if value="{{ f.lastPlace }}" hint-placeholder-val="{{ false }}"><span title="Finished last place this season" style="display:inline-flex; align-items:center; justify-content:center; width:19px; height:19px; border-radius:50%; background:#3a1e14; border:1px solid #cf6b45; flex:0 0 auto; margin-left:7px; vertical-align:middle;"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="4.2" ry="5.2" fill="none" stroke="#cf6b45" stroke-width="2"></ellipse><line x1="12" y1="11" x2="12" y2="21" stroke="#cf6b45" stroke-width="2.4" stroke-linecap="round"></line></svg></span></sc-if></div>
+              <div style="color:#a67c6c; font-size:13px; font-style:italic;">"{{ f.team }}"</div>
+            </div>
+            <div style="font-family:'Space Mono',monospace; color:#e8c9bd; font-size:18px;">{{ f.pf }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="max-width:1200px; margin:14px auto 0; font-family:'Space Mono',monospace; color:#7a5a4d; font-size:11px; line-height:1.6;">Note: scoring &amp; schedule length changed over 18 years, so raw single-season point totals skew by era. Fewest-points leans toward the older 13-game, lower-scoring seasons.</div>
+  </div>
+
+  <!-- WALL OF SHAME: last place -->
+  <div style="background:#08210f; padding:52px clamp(18px,4.5vw,40px);">
+    <div style="max-width:1100px; margin:0 auto;">
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(25px,4.5vw,34px);">THE WOODEN SPOON RANKINGS</div>
+      <div style="color:#a67c6c; font-size:14px; margin-top:6px; margin-bottom:22px;">All-time last-place finishes — the managers who've spent the most time in the Pit. From the league's official last-place record.</div>
+      <sc-for list="{{ spoons }}" as="w" hint-placeholder-count="6">
+        <div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">
+          <div style="width:150px; flex:0 0 auto; font-family:'Barlow Condensed',sans-serif; color:#f0e4dd; font-weight:700; font-size:18px; text-align:right;">{{ w.name }}</div>
+          <div style="flex:1; height:26px; background:#170f0c; border:1px solid #3a1e14; position:relative;">
+            <div style="position:absolute; left:0; top:0; bottom:0; width:{{ w.width }}; background:#cf6b45;"></div>
+          </div>
+          <div style="width:120px; flex:0 0 auto; font-family:'Space Mono',monospace; color:{{ w.labelColor }}; font-size:13px;">{{ w.label }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- PUNISHMENT LEDGER -->
+  <div style="background:#0c2b17; padding:52px clamp(18px,4.5vw,40px);">
+    <div style="max-width:1000px; margin:0 auto;">
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(27px,5vw,38px);">THE PUNISHMENT LEDGER</div>
+      <div style="color:#a67c6c; font-size:14px; margin-top:6px; max-width:720px; line-height:1.5;">Who got to pick each season's punishment — the reigning champion. Known <strong style="color:#cf6b45;">last-place finishers</strong> and <strong style="color:#cf6b45;">punishments</strong> are filled in below; the rest stay marked pending until you send the official lists (the losers-bracket data on ESPN isn't reliable enough to trust). A <span style="display:inline-block; background:#7a1f12; color:#ffd9cd; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:0.12em; padding:2px 6px; text-transform:uppercase;">☠ Kill Shot</span> marks a punishment that ran the loser out of the league for good.</div>
+      <div style="margin-top:24px; border:1px solid #3a1e14;">
+        <div style="display:grid; grid-template-columns:80px 1.4fr 1.1fr 1.4fr; background:#170f0c; padding:12px 18px; font-family:'Space Mono',monospace; color:#a67c6c; font-size:11px; letter-spacing:0.1em; text-transform:uppercase;">
+          <span>Year</span><span>Last Place</span><span>Chosen By</span><span>Punishment</span>
+        </div>
+        <sc-for list="{{ ledger }}" as="l" hint-placeholder-count="18">
+          <div style="display:grid; grid-template-columns:80px 1.4fr 1.1fr 1.4fr; padding:13px 18px; align-items:center; background:{{ l.bg }}; border-top:1px solid #241511;">
+            <span style="font-family:'Anton',sans-serif; color:#e8c9bd; font-size:18px;">{{ l.year }}</span>
+            <span><span style="font-family:'Barlow Condensed',sans-serif; color:{{ l.loserColor }}; font-weight:700; font-size:16px;">{{ l.loser }}</span></span>
+            <span style="font-family:'Barlow Condensed',sans-serif; color:#b39a8f; font-weight:600; font-size:16px;">{{ l.chooser }}</span>
+            <span style="font-family:'Space Mono',monospace; color:{{ l.punColor }}; font-size:12px;"><sc-if value="{{ l.killShot }}" hint-placeholder-val="{{ false }}"><span style="display:inline-block; background:#7a1f12; color:#ffd9cd; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:0.12em; padding:2px 6px; margin-right:7px; text-transform:uppercase; vertical-align:middle;">☠ Kill Shot</span></sc-if>{{ l.punishment }}</span>
+          </div>
+        </sc-for>
+        <div style="padding:14px 18px; border-top:1px solid #241511; background:#0c2b17; font-family:'Space Mono',monospace; color:#7a5a4d; font-size:12px; letter-spacing:0.04em;">2008–2013 · The league had no last-place punishments yet — the ledger begins in 2014.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="background:#0c2b17; border-top:2px solid #1e5230; padding:26px clamp(18px,4.5vw,40px); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <span style="font-family:'Barlow Condensed',sans-serif; color:#5f7d68; letter-spacing:0.14em; font-size:14px; text-transform:uppercase;">NO CSBS · No Chicken Shit Bullshit</span>
+    <span style="font-family:'Space Mono',monospace; color:#5f7d68; font-size:12px;">MINNESOTA · SINCE 2008</span>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount(){
+    const ready = () => window.NOCSBS && window.NOCSBS_RECORDS && window.NOCSBS_PANTHEON;
+    if(!ready()){ this._iv = setInterval(()=>{ if(ready()){ clearInterval(this._iv); this.forceUpdate(); } }, 60); }
+  }
+  componentWillUnmount(){ if(this._iv) clearInterval(this._iv); }
+  renderVals(){
+    const D = window.NOCSBS;
+    if(!D) return {};
+    const R = window.NOCSBS_RECORDS;
+    const P = window.NOCSBS_PANTHEON;
+    const nm = id => D.name[id];
+    const f1 = n => (Math.round(n*10)/10).toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:1});
+    const pct = p => "." + Math.round(p*1000).toString().padStart(3,'0');
+
+    // Official last-place finishers supplied by the league (overrides ESPN standings).
+    const lastPlaceKnown = { 2008:"brandonJ", 2009:"brandonJ", 2010:"dahlin", 2011:"dahlin", 2012:"brandonJ", 2013:"timofey", 2014:"casey", 2015:"dylan", 2016:"casey", 2017:"dahlin", 2018:"andyPage", 2019:"nick", 2020:"timofey", 2021:"nick", 2022:"dahlin", 2023:"soy", 2024:"timofey", 2025:"alexBoone" };
+
+    const wasLast = (mid, season) => lastPlaceKnown[Number(season)] === mid;
+
+    const topPA = [...D.flatTeams].sort((a,b)=>b.pa-a.pa).slice(0,6).map((p,i)=>({
+      rank:i+1, name:p.name, year:(p.year+1), team:p.team, pa:f1(p.pa), lastPlace: wasLast(p.id, p.year)
+    }));
+    const fewPF = [...D.flatTeams].sort((a,b)=>a.pf-b.pf).slice(0,6).map((p,i)=>({
+      rank:i+1, name:p.name, year:(p.year+1), team:p.team, pf:f1(p.pf), lastPlace: wasLast(p.id, p.year)
+    }));
+
+    // wooden spoons: last-place finishes per manager (official list). Include everyone, even 0-spoon managers.
+    const spoonCount = {};
+    Object.values(lastPlaceKnown).forEach(id => { spoonCount[id] = (spoonCount[id]||0)+1; });
+    const activeIds = new Set(D.members.map(m=>m.id));
+    const allMgrIds = [...D.members.map(m=>m.id), ...D.graveyard.map(g=>g.id)]
+      .filter(id => (spoonCount[id]||0) > 0 || activeIds.has(id));
+    const spoonArr = allMgrIds.map(id=>({ id, name:nm(id), n:spoonCount[id]||0 }))
+      .sort((a,b)=> b.n-a.n || a.name.localeCompare(b.name));
+    const maxSpoon = Math.max(1, ...spoonArr.map(s=>s.n));
+    const spoons = spoonArr.map(s=>({
+      name: s.name, label: s.n + (s.n===1?" spoon":" spoons"),
+      labelColor: s.n===0 ? "#5f8a6d" : "#e8c9bd",
+      width: Math.round(s.n/maxSpoon*100) + "%", empty: s.n===0
+    }));
+
+    // superlatives
+    const worstPA = topPA[0];
+    const worstRec = [...D.flatTeams].sort((a,b)=> a.winPct-b.winPct || a.pf-b.pf)[0];
+    const leastPF = fewPF[0];
+    const mostLosses = [...D.allTime].sort((a,b)=>b.l-a.l)[0];
+    const lowestWinPct = [...D.allTime].filter(a=>a.seasons>=3).sort((a,b)=>a.winPct-b.winPct)[0];
+    const mostSpoons = spoonArr[0];
+
+    const supers = [
+      { label:"Most Points Against, Season", big:worstPA.pa, who:worstPA.name, detail:'"'+worstPA.team+'" · '+worstPA.year },
+      { label:"Worst Season (record)", big:worstRec.w+"-"+worstRec.l, who:worstRec.name, detail:'"'+worstRec.team+'" · '+worstRec.year },
+      { label:"Fewest Points, Season", big:leastPF.pf, who:leastPF.name, detail:'"'+leastPF.team+'" · '+leastPF.year },
+      { label:"Most Last-Place Finishes", big:mostSpoons.n+"×", who:mostSpoons.name, detail:"a frequent flyer in the Pit" },
+      { label:"Most Career Losses", big:mostLosses.l+"", who:mostLosses.name, detail:mostLosses.w+"-"+mostLosses.l+" all-time" },
+      { label:"Lowest Career Win %", big:pct(lowestWinPct.winPct), who:lowestWinPct.name, detail:lowestWinPct.seasons+" seasons of pain" }
+    ];
+
+    // punishment ledger (moved from Constitution)
+    const noPunishmentYears = new Set([2008,2009,2010,2011,2012,2013]);
+    const killShotYears = new Set([2015,2018,2022,2024]);
+    const punishmentKnown = {
+      2014:"Dress up as the draft fairy",
+      2015:"Attend a Lynx game, alone",
+      2016:"Dress up as a baby for dinner (Casey went to Buffalo Wild Wings)",
+      2017:"Dress as a bunny — 30-min head start, drink down Uptown without getting caught, 1 drink per bar minimum",
+      2018:"Take the ACT and share your results with the group",
+      2019:"Drive to Lambeau Field and back, same day",
+      2020:"Polar plunge",
+      2021:"All day at Matt's Bar — lunch & dinner there, alone, no leaving",
+      2022:"Make a disc golf shot from 150 ft out — 4-hour time limit",
+      2023:"Build-A-Bear, then ride a ride alone at Six Flags — souvenir photo required",
+      2024:"Drum outside a public event for 15 min or until $100 in tips — refused, removed from the league",
+      2025:"Record a custom album (songs picked by the other 9) and keep it on YouTube for a year"
+    };
+    const ledger = [...D.seasons].reverse().map((s,idx)=>{
+      const last = s.rows[s.rows.length-1];
+      // Chosen By = reigning (defending) champion during that season = winner of the prior season.
+      const champ = D.champions.find(c => c.year === s.year - 1);
+      const knownLoser = lastPlaceKnown[s.year];
+      const knownPun = punishmentKnown[s.year];
+      const naPun = noPunishmentYears.has(s.year);
+      const killShot = killShotYears.has(s.year);
+      return {
+        season: s.year,
+        year: s.year + 1,
+        loser: knownLoser ? nm(knownLoser) : "[ TBD ]",
+        loserColor: knownLoser ? "#e8c9bd" : "#7a5a4d",
+        loserTeam: last[1],
+        chooser: champ ? (champ.champCo ? nm(champ.champId)+" & "+nm(champ.champCo) : nm(champ.champId)) : "—",
+        punishment: naPun ? "N/A" : (knownPun || "[ pending ]"),
+        punColor: naPun ? "#7a5a4d" : (knownPun ? "#e8c9bd" : "#7a5a4d"),
+        killShot,
+        bg: idx%2 ? "#160f0c" : "#0c2b17"
+      };
+    }).filter(l => l.season >= 2014);
+    // Upcoming season not yet in the standings data — loser & punishment still TBD.
+    const lastSeason = D.seasons[D.seasons.length-1].year;
+    const nextChamp = D.champions.find(c => c.year === lastSeason);
+    ledger.unshift({
+      season: lastSeason + 1,
+      year: lastSeason + 2,
+      loser: "[ TBD ]", loserColor: "#7a5a4d", loserTeam: "",
+      chooser: nextChamp ? (nextChamp.champCo ? nm(nextChamp.champId)+" & "+nm(nextChamp.champCo) : nm(nextChamp.champId)) : "—",
+      punishment: "[ TBD ]", punColor: "#7a5a4d", killShot: false, bg: "#0c2b17"
+    });
+    ledger.forEach((l,i)=>{ l.bg = i%2 ? "#160f0c" : "#0c2b17"; });
+
+    // real single-game lows + beatdowns
+    const short = id => { const full = nm(id)||id; return full.replace(/"[^"]*"/,'').trim().split(/\s+/)[0]; };
+    let lowest=[], beatdowns=[];
+    if(R){
+      lowest = R.lowest.slice(0,6).map((g,i)=>({ rank:i+1, name:nm(g.mid), when:"Wk "+g.week+", "+(g.season+1), opp:short(g.opp), score:f1(g.score), lastPlace: wasLast(g.mid, g.season) }));
+      beatdowns = R.blowouts.slice(0,6).map((g,i)=>({ rank:i+1, loser:nm(g.opp), winner:short(g.mid), when:"Wk "+g.week+", "+(g.season+1), score:f1(g.oppScore), oppScore:f1(g.score), margin:f1(g.margin), lastPlace: wasLast(g.opp, g.season) }));
+    }
+
+    return { supers, topPA, fewPF, spoons, ledger, lowest, beatdowns };
+  }
+}
+</script>
+</body>
+</html>

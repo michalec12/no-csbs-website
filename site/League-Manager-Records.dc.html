@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Barlow:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="league-data.js"></script>
+<script src="records-data.js"></script>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#0c2b17;font-family:'Barlow',sans-serif;}
+  a{text-decoration:none;color:inherit;}
+
+  @media (max-width:760px){ [data-r="c2"]{ grid-template-columns:1fr !important; } }
+  @media (max-width:880px){ [data-r="c3"],[data-r="c5"],[data-r="c5nav"]{ grid-template-columns:repeat(2,1fr) !important; } }
+  @media (max-width:520px){ [data-r="c3"],[data-r="c5"],[data-r="c5nav"]{ grid-template-columns:1fr !important; } }
+  @media (max-width:900px){
+    [data-r="navbar"]{ height:auto !important; padding-top:10px !important; padding-bottom:10px !important; padding-left:16px !important; padding-right:16px !important; flex-wrap:wrap !important; gap:6px 14px !important; }
+    [data-r="navlinks"]{ flex-wrap:wrap !important; gap:8px 12px !important; font-size:11.5px !important; }
+  }
+</style>
+</helmet>
+
+<div style="background:#0c2b17; min-height:100vh; font-family:'Barlow',sans-serif;">
+
+  <!-- NAV -->
+  <div style="background:#0c2b17; border-bottom:2px solid #e8ddc3; padding:0 40px; height:70px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:20;" data-r="navbar">
+    <a href="Home.dc.html" style="font-family:'Anton',sans-serif; color:#e8ddc3; letter-spacing:0.06em; font-size:26px;">NO CSBS</a>
+    <div style="display:flex; gap:14px; font-family:'Barlow Condensed',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; font-size:12.5px;" data-r="navlinks">
+      <a href="Home.dc.html" style="color:#cfe0d3;">Home</a>
+      <a href="This-Season.dc.html" style="color:#cfe0d3;">This Season</a>
+      <a href="Message-Board.dc.html" style="color:#cfe0d3;">Message Board</a>
+      <a href="Members.dc.html" style="color:#cfe0d3;">Members</a>
+      <a href="Hall-of-Winners.dc.html" style="color:#cfe0d3;">Hall of Winners</a>
+      <a href="Draft-History.dc.html" style="color:#cfe0d3;">Draft Room</a>
+      <a href="League-Manager-Records.dc.html" style="color:#f2c94c;">Manager Records</a>
+      <a href="The-Pantheon.dc.html" style="color:#cfe0d3;">The Pantheon</a>
+      <a href="Pit-of-Despair.dc.html" style="color:#cfe0d3;">Pit of Despair</a>
+      <a href="Constitution.dc.html" style="color:#cfe0d3;">Constitution</a>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div style="background:#123f22; padding:52px clamp(18px,4.5vw,40px); border-bottom:2px solid #1e5230;">
+    <div style="max-width:1200px; margin:0 auto;">
+      <div style="font-family:'Space Mono',monospace; color:#f2c94c; letter-spacing:0.24em; font-size:13px; text-transform:uppercase;">18 Seasons · {{ totalGames }} Games · Since 2008</div>
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(38px,8vw,72px); line-height:0.9; margin-top:6px;">LEAGUE MANAGER RECORDS</div>
+      <div style="color:#9dc4aa; font-size:17px; margin-top:10px; max-width:760px; line-height:1.5;">Every win, loss and point since the beginning. Franchises carry their full history — when a manager takes over a team, they inherit its legacy.</div>
+    </div>
+  </div>
+
+  <!-- SUPERLATIVES -->
+  <div style="background:#0c2b17; padding:48px clamp(18px,4.5vw,40px) 20px;">
+    <div style="max-width:1200px; margin:0 auto;">
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:18px;">
+        <sc-for list="{{ supers }}" as="s" hint-placeholder-count="6">
+          <div style="background:#0f331f; border:1px solid #1e5230; border-top:4px solid {{ s.accent }}; padding:22px 20px;">
+            <div style="font-family:'Space Mono',monospace; color:#5f8a6d; font-size:11px; letter-spacing:0.14em; text-transform:uppercase;">{{ s.label }}</div>
+            <div style="font-family:'Anton',sans-serif; color:{{ s.accent }}; font-size:clamp(30px,6vw,44px); line-height:0.95; margin-top:8px;">{{ s.big }}</div>
+            <div style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; font-size:20px; text-transform:uppercase; margin-top:6px; line-height:1.05;">{{ s.who }}</div>
+            <div style="color:#8fb89c; font-size:13px; margin-top:4px;">{{ s.detail }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- FRANCHISE STANDINGS -->
+  <div style="background:#0c2b17; padding:36px 40px 52px;">
+    <div style="max-width:1200px; margin:0 auto;">
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(27px,5vw,38px); margin-bottom:6px;">ALL-TIME FRANCHISE STANDINGS</div>
+      <div style="color:#7fa98c; font-size:14px; margin-bottom:22px; max-width:820px; line-height:1.5;"><strong style="color:#e8ddc3;">Franchise Record</strong> is the team's entire history across every manager who's run it. <strong style="color:#e8ddc3;">Manager's Record</strong> is the current owner's tenure only. Ranked by franchise win %.</div>
+      <div style="border:1px solid #1e5230; overflow-x:auto;">
+        <div style="min-width:820px;">
+          <div style="display:grid; grid-template-columns:40px 2.5fr 1.25fr 1.25fr; background:#08210f; padding:12px 18px; font-family:'Space Mono',monospace; color:#8fbf9d; font-size:11px; letter-spacing:0.1em; text-transform:uppercase;">
+            <span>#</span><span>Franchise</span><span>Franchise Record</span><span>Manager's Record</span>
+          </div>
+          <sc-for list="{{ table }}" as="r" hint-placeholder-count="10">
+            <div style="display:grid; grid-template-columns:40px 2.5fr 1.25fr 1.25fr; padding:14px 18px; align-items:center; background:{{ r.bg }}; border-top:1px solid #123f22;">
+              <span style="font-family:'Anton',sans-serif; color:#5f8a6d; font-size:18px;">{{ r.pos }}</span>
+              <span>
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                  <span style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; font-size:20px;">{{ r.team }}</span>
+                  <span style="color:#7fa98c; font-size:13px;">{{ r.owner }}</span>
+                  <sc-if value="{{ r.titles }}" hint-placeholder-val="{{ 0 }}">
+                    <span style="font-family:'Space Mono',monospace; color:#f2c94c; font-size:12px;">🏆{{ r.titles }}</span>
+                  </sc-if>
+                </div>
+                <div style="font-family:'Space Mono',monospace; color:#5f8a6d; font-size:11px; margin-top:4px;">{{ r.lineage }}</div>
+              </span>
+              <span>
+                <div style="font-family:'Space Mono',monospace; color:#e8ddc3; font-size:15px;">{{ r.record }} <span style="color:#7fa98c; font-size:12px;">· {{ r.winPct }}</span></div>
+                <div style="font-family:'Space Mono',monospace; color:#5f8a6d; font-size:11px; margin-top:3px;">{{ r.pfg }} PF/G · avg fin {{ r.avgFinish }}</div>
+              </span>
+              <span>
+                <div style="font-family:'Space Mono',monospace; color:#cfe0d3; font-size:15px;">{{ r.mgrRecord }} <span style="color:#7fa98c; font-size:12px;">· {{ r.mgrWinPct }}</span></div>
+                <div style="font-family:'Space Mono',monospace; color:#5f8a6d; font-size:11px; margin-top:3px;">{{ r.mgrNote }}</div>
+              </span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="font-family:'Space Mono',monospace; color:#5f8a6d; font-size:11px; margin-top:10px; line-height:1.6;">Scoring &amp; schedule length evolved over 18 years (13→14 games, higher modern scoring), so PF/G skews toward recent seasons. Win % is the fair cross-era yardstick.</div>
+    </div>
+  </div>
+
+  <!-- TWO COLUMN: top seasons + best records -->
+  <div style="background:#08210f; padding:52px clamp(18px,4.5vw,40px);">
+    <div style="max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:30px;" data-r="c2">
+      <div>
+        <div style="font-family:'Anton',sans-serif; color:#fff; font-size:30px; margin-bottom:16px;">MOST POINTS, ONE SEASON</div>
+        <sc-for list="{{ topPF }}" as="p" hint-placeholder-count="6">
+          <div style="display:flex; align-items:center; gap:14px; background:#0f331f; border:1px solid #1e5230; padding:12px 16px; margin-bottom:8px;">
+            <div style="font-family:'Anton',sans-serif; color:#f2c94c; font-size:22px; width:34px;">{{ p.rank }}</div>
+            <div style="flex:1;">
+              <div style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; font-size:18px;">{{ p.name }} <span style="color:#7fa98c; font-weight:500;">· {{ p.year }}</span></div>
+              <div style="color:#8fb89c; font-size:13px; font-style:italic;">"{{ p.team }}"</div>
+            </div>
+            <div style="font-family:'Space Mono',monospace; color:#e8ddc3; font-size:18px;">{{ p.pf }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div>
+        <div style="font-family:'Anton',sans-serif; color:#fff; font-size:30px; margin-bottom:16px;">BEST SINGLE-SEASON RECORDS</div>
+        <sc-for list="{{ bestRec }}" as="b" hint-placeholder-count="6">
+          <div style="display:flex; align-items:center; gap:14px; background:#0f331f; border:1px solid #1e5230; padding:12px 16px; margin-bottom:8px;">
+            <div style="font-family:'Anton',sans-serif; color:#f2c94c; font-size:22px; width:34px;">{{ b.rank }}</div>
+            <div style="flex:1;">
+              <div style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; font-size:18px;">{{ b.name }} <span style="color:#7fa98c; font-weight:500;">· {{ b.year }}</span></div>
+              <div style="color:#8fb89c; font-size:13px; font-style:italic;">"{{ b.team }}"</div>
+            </div>
+            <div style="font-family:'Space Mono',monospace; color:#e8ddc3; font-size:16px;">{{ b.rec }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="grid-column:1 / -1; font-family:'Space Mono',monospace; color:#5f8a6d; font-size:11px; letter-spacing:0.06em;">* denotes the manager won the championship that season.</div>
+    </div>
+  </div>
+
+  <!-- MANAGER BEST-SEASON RANKINGS (tabbed) -->
+  <div style="background:#0c2b17; padding:52px clamp(18px,4.5vw,40px);">
+    <div style="max-width:1200px; margin:0 auto;">
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(27px,5vw,38px);">MANAGER PEAKS</div>
+      <div style="color:#7fa98c; font-size:14px; margin-top:6px; max-width:820px; line-height:1.5;">Each current manager's personal best, stack-ranked head to head. Based on <strong style="color:#e8ddc3;">manager history</strong> — the person, not the franchise they inherited. A <span style="font-size:14px;">👑</span> marks a peak set in a season that manager won the championship. {{ rankNote }}</div>
+
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:22px;">
+        <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+          <div onClick="{{ t.onClick }}" style="font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; font-size:14px; padding:10px 18px; cursor:pointer; background:{{ t.bg }}; color:{{ t.color }}; border:1px solid {{ t.border }};">{{ t.label }}</div>
+        </sc-for>
+      </div>
+
+      <div style="border:1px solid #1e5230; margin-top:18px;">
+        <div style="display:grid; grid-template-columns:50px 2fr 1.1fr 1.6fr; background:#08210f; padding:12px 18px; font-family:'Space Mono',monospace; color:#8fbf9d; font-size:11px; letter-spacing:0.1em; text-transform:uppercase;">
+          <span>#</span><span>Manager</span><span style="text-align:right;">{{ rankUnit }}</span><span style="text-align:right;">Season</span>
+        </div>
+        <sc-for list="{{ rankRows }}" as="r" hint-placeholder-count="10">
+          <div style="display:grid; grid-template-columns:50px 2fr 1.1fr 1.6fr; padding:14px 18px; align-items:center; background:{{ r.bg }}; border-top:1px solid #123f22;">
+            <span style="font-family:'Anton',sans-serif; color:{{ r.rankColor }}; font-size:20px;">{{ r.rank }}</span>
+            <span style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; font-size:19px;">{{ r.name }}<sc-if value="{{ r.won }}" hint-placeholder-val="{{ false }}"><span title="Won the championship that season" style="margin-left:7px; font-size:15px; vertical-align:middle;">👑</span></sc-if><sc-if value="{{ r.lost }}" hint-placeholder-val="{{ false }}"><span title="Lost in the championship that season (runner-up)" style="margin-left:6px; font-size:14px; vertical-align:middle;">🥈</span></sc-if><sc-if value="{{ r.era }}" hint-placeholder-val="{{ false }}"><span title="{{ r.eraFull }}" style="display:inline-block; font-family:'Space Mono',monospace; font-size:9px; font-weight:700; letter-spacing:0.08em; padding:1px 5px; margin-left:7px; vertical-align:middle; color:{{ r.eraColor }}; border:1px solid {{ r.eraColor }};">{{ r.era }}</span></sc-if></span>
+            <span style="font-family:'Space Mono',monospace; color:#e8ddc3; font-size:18px; text-align:right;">{{ r.value }}</span>
+            <span style="font-family:'Barlow Condensed',sans-serif; color:#8fb89c; font-size:14px; text-align:right;">{{ r.sub }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- REAL: HIGHEST GAMES + STREAKS -->
+  <div style="background:#0c2b17; padding:52px clamp(18px,4.5vw,40px);">
+    <div style="max-width:1200px; margin:0 auto;">
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(27px,5vw,38px);">SINGLE-GAME &amp; STREAK RECORDS</div>
+      <div style="color:#7fa98c; font-size:14px; margin-top:6px; max-width:820px; line-height:1.5;">Computed from every regular-season matchup, 2009–2026. Playoff and losers-bracket games are excluded — too many tank jobs to trust.</div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-top:26px;">
+        <div>
+          <div style="font-family:'Anton',sans-serif; color:#fff; font-size:26px; margin-bottom:14px;">HIGHEST SINGLE GAMES</div>
+          <sc-for list="{{ highest }}" as="h" hint-placeholder-count="10">
+            <div style="display:flex; align-items:center; gap:14px; background:#0f331f; border:1px solid #1e5230; padding:11px 15px; margin-bottom:7px;">
+              <div style="font-family:'Anton',sans-serif; color:{{ h.rankColor }}; font-size:20px; width:30px;">{{ h.rank }}</div>
+              <div style="flex:1;">
+                <div style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; font-size:18px;">{{ h.name }}<sc-if value="{{ h.won }}" hint-placeholder-val="{{ false }}"><span title="Won the championship that season" style="margin-left:6px; font-size:13px; vertical-align:middle;">👑</span></sc-if><sc-if value="{{ h.spoon }}" hint-placeholder-val="{{ false }}"><span title="Finished last place this season" style="margin-left:6px; font-size:13px; vertical-align:middle;">🥄</span></sc-if></div>
+                <div style="color:#8fb89c; font-size:12.5px;">{{ h.when }} · beat {{ h.opp }} ({{ h.oppScore }})</div>
+              </div>
+              <div style="font-family:'Anton',sans-serif; color:#e8ddc3; font-size:24px;">{{ h.score }}</div>
+            </div>
+          </sc-for>
+          <div style="font-family:'Space Mono',monospace; color:#5f8a6d; font-size:11px; margin-top:10px; line-height:1.5;">Raw scores favor modern seasons. Most dominant vs. that week's league average: <span style="color:#e8ddc3;">{{ domLead }}</span>.</div>
+        </div>
+        <div>
+          <div style="font-family:'Anton',sans-serif; color:#fff; font-size:26px; margin-bottom:14px;">LONGEST WIN STREAKS</div>
+          <sc-for list="{{ winStreaks }}" as="s" hint-placeholder-count="6">
+            <div style="display:flex; align-items:center; gap:14px; background:#0f331f; border:1px solid #1e5230; padding:11px 15px; margin-bottom:7px;">
+              <div style="font-family:'Anton',sans-serif; color:{{ s.rankColor }}; font-size:20px; width:30px;">{{ s.rank }}</div>
+              <div style="flex:1;">
+                <div style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; font-size:18px;">{{ s.name }}<sc-if value="{{ s.won }}" hint-placeholder-val="{{ false }}"><span title="Won a championship during this streak" style="margin-left:6px; font-size:13px; vertical-align:middle;">👑</span></sc-if><sc-if value="{{ s.spoon }}" hint-placeholder-val="{{ false }}"><span title="Finished last place during this span" style="margin-left:6px; font-size:13px; vertical-align:middle;">🥄</span></sc-if></div>
+                <div style="color:#8fb89c; font-size:12.5px;">{{ s.span }}</div>
+              </div>
+              <div style="font-family:'Space Mono',monospace; color:#e8ddc3; font-size:17px;">{{ s.len }} W</div>
+            </div>
+          </sc-for>
+          <div style="font-family:'Anton',sans-serif; color:#cf6b45; font-size:22px; margin:20px 0 12px;">LONGEST LOSING SKIDS</div>
+          <sc-for list="{{ lossStreaks }}" as="s" hint-placeholder-count="3">
+            <div style="display:flex; align-items:center; gap:14px; background:#170f0c; border:1px solid #3a1e14; padding:10px 15px; margin-bottom:7px;">
+              <div style="font-family:'Anton',sans-serif; color:#cf6b45; font-size:18px; width:30px;">{{ s.rank }}</div>
+              <div style="flex:1;">
+                <div style="font-family:'Barlow Condensed',sans-serif; color:#f0e4dd; font-weight:700; font-size:17px;">{{ s.name }}<sc-if value="{{ s.won }}" hint-placeholder-val="{{ false }}"><span title="Won a championship during this streak" style="margin-left:6px; font-size:13px; vertical-align:middle;">👑</span></sc-if><sc-if value="{{ s.spoon }}" hint-placeholder-val="{{ false }}"><span title="Finished last place during this span" style="margin-left:6px; font-size:13px; vertical-align:middle;">🥄</span></sc-if></div>
+                <div style="color:#a67c6c; font-size:12px;">{{ s.span }}</div>
+              </div>
+              <div style="font-family:'Space Mono',monospace; color:#e8c9bd; font-size:16px;">{{ s.len }} L</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REAL: HEAD-TO-HEAD MATRIX -->
+  <div style="background:#08210f; padding:52px clamp(18px,4.5vw,40px);">
+    <div style="max-width:1200px; margin:0 auto;">
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(27px,5vw,38px);">HEAD-TO-HEAD · MANAGER vs MANAGER</div>
+      <div style="color:#7fa98c; font-size:14px; margin-top:6px; max-width:820px; line-height:1.5;">All-time regular-season record for each current manager (row) vs. every other (column) — counting only games they played under their own name. Green = winning record, red = losing. Read across your row.</div>
+      <div style="overflow-x:auto; margin-top:22px; border:1px solid #1e5230;">
+        <div style="min-width:900px;">
+          <div style="display:grid; grid-template-columns:130px repeat(10, 1fr); background:#0c2b17;">
+            <div style="padding:10px 12px; font-family:'Space Mono',monospace; color:#5f8a6d; font-size:10px; letter-spacing:0.08em; border-bottom:1px solid #1e5230;">VS →</div>
+            <sc-for list="{{ h2hHeaders }}" as="c" hint-placeholder-count="10">
+              <div style="padding:10px 4px; text-align:center; font-family:'Barlow Condensed',sans-serif; font-weight:700; color:#9dc4aa; font-size:12px; border-bottom:1px solid #1e5230; border-left:1px solid #123f22;">{{ c }}</div>
+            </sc-for>
+          </div>
+          <sc-for list="{{ h2hRows }}" as="row" hint-placeholder-count="10">
+            <div style="display:grid; grid-template-columns:130px repeat(10, 1fr); border-bottom:1px solid #123f22;">
+              <div style="padding:10px 12px; font-family:'Barlow Condensed',sans-serif; font-weight:700; color:#fff; font-size:14px; background:#0c2b17;">{{ row.name }}</div>
+              <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="10">
+                <div style="padding:9px 2px; text-align:center; font-family:'Space Mono',monospace; font-size:12px; background:{{ cell.bg }}; color:{{ cell.color }}; border-left:1px solid #123f22;">{{ cell.txt }}</div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(27px,5vw,38px); margin-top:48px;">HEAD-TO-HEAD · FRANCHISE vs FRANCHISE</div>
+      <div style="color:#7fa98c; font-size:14px; margin-top:6px; max-width:820px; line-height:1.5;">The same grid, but every game the <strong style="color:#e8ddc3;">franchise</strong> ever played — inherited history and all. A team that took over another manager's roster carries that record forward, so these totals run deeper than the manager grid above.</div>
+      <div style="overflow-x:auto; margin-top:22px; border:1px solid #1e5230;">
+        <div style="min-width:900px;">
+          <div style="display:grid; grid-template-columns:130px repeat(10, 1fr); background:#0c2b17;">
+            <div style="padding:10px 12px; font-family:'Space Mono',monospace; color:#5f8a6d; font-size:10px; letter-spacing:0.08em; border-bottom:1px solid #1e5230;">VS →</div>
+            <sc-for list="{{ h2hHeaders }}" as="c" hint-placeholder-count="10">
+              <div style="padding:10px 4px; text-align:center; font-family:'Barlow Condensed',sans-serif; font-weight:700; color:#9dc4aa; font-size:12px; border-bottom:1px solid #1e5230; border-left:1px solid #123f22;">{{ c }}</div>
+            </sc-for>
+          </div>
+          <sc-for list="{{ h2hFrRows }}" as="row" hint-placeholder-count="10">
+            <div style="display:grid; grid-template-columns:130px repeat(10, 1fr); border-bottom:1px solid #123f22;">
+              <div style="padding:10px 12px; font-family:'Barlow Condensed',sans-serif; font-weight:700; color:#fff; font-size:14px; background:#0c2b17;">{{ row.name }}</div>
+              <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="10">
+                <div style="padding:9px 2px; text-align:center; font-family:'Space Mono',monospace; font-size:12px; background:{{ cell.bg }}; color:{{ cell.color }}; border-left:1px solid #123f22;">{{ cell.txt }}</div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="background:#0c2b17; border-top:2px solid #1e5230; padding:26px clamp(18px,4.5vw,40px); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <span style="font-family:'Barlow Condensed',sans-serif; color:#5f7d68; letter-spacing:0.14em; font-size:14px; text-transform:uppercase;">NO CSBS · No Chicken Shit Bullshit</span>
+    <span style="font-family:'Space Mono',monospace; color:#5f7d68; font-size:12px;">MINNESOTA · SINCE 2008</span>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props){ super(props); this.state = { tab: "record" }; }
+  componentDidMount(){
+    const ready = () => window.NOCSBS && window.NOCSBS_RECORDS;
+    if(!ready()){ this._iv = setInterval(()=>{ if(ready()){ clearInterval(this._iv); this.forceUpdate(); } }, 60); }
+  }
+  componentWillUnmount(){ if(this._iv) clearInterval(this._iv); }
+  renderVals(){
+    const D = window.NOCSBS;
+    if(!D) return {};
+    const R = window.NOCSBS_RECORDS;
+    const nm = id => D.name[id];
+    const f1 = n => (Math.round(n*10)/10).toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:1});
+    const pct = p => "." + Math.round(p*1000).toString().padStart(3,'0');
+
+    // franchise standings
+    const table = D.franchises.map((f,i)=>{
+      const preds = f.lineage.filter(x=>!x.isCurrent);
+      const lineageStr = f.inherited
+        ? ("Inherited from " + preds.map(p=>p.name+" ("+p.span+")").join(" → "))
+        : "Original 2008 franchise · one owner";
+      return {
+        pos: i+1,
+        team: f.team,
+        owner: "(" + f.name + ")",
+        titles: f.titles,
+        lineage: lineageStr,
+        seasons: f.seasons,
+        record: f.record,
+        winPct: pct(f.winPct),
+        pfg: f1(f.pfg),
+        avgFinish: f.avgFinish.toFixed(1),
+        mgrRecord: f.mgr.record,
+        mgrWinPct: pct(f.mgr.winPct),
+        mgrNote: f.inherited ? (f.name.split(' ')[0] + " since " + f.mgr.since + " · " + f.mgr.seasons + " szns") : "same as franchise",
+        bg: i%2 ? "#0e3320" : "#0c2b17"
+      };
+    });
+
+    // season leaderboards (top 8)
+    const yr = t => t.finish===1 ? ((t.year+1) + "*") : ("" + (t.year+1));
+    // crown/spoon/medal sets (keyed by raw data year)
+    const champSetLM = new Set();
+    D.champions.forEach(c => { champSetLM.add(c.champId+"|"+c.year); if(c.champCo) champSetLM.add(c.champCo+"|"+c.year); });
+    const runnerUpSet = new Set();
+    D.flatTeams.forEach(t => { if(t.finish===2) runnerUpSet.add(t.id+"|"+t.year); });
+    const lastPlaceLM = { 2008:"brandonJ", 2009:"brandonJ", 2010:"dahlin", 2011:"dahlin", 2012:"brandonJ", 2013:"timofey", 2014:"casey", 2015:"dylan", 2016:"casey", 2017:"dahlin", 2018:"andyPage", 2019:"nick", 2020:"timofey", 2021:"nick", 2022:"dahlin", 2023:"soy", 2024:"timofey", 2025:"alexBoone" };
+    const wonYear = (mid,y) => champSetLM.has(mid+"|"+y);
+    const lastYear = (mid,y) => lastPlaceLM[y]===mid;
+    // crown if champ in any year of [from,to]; spoon if last in any
+    const spanCrown = (mid,from,to) => { for(let y=from;y<=to;y++) if(wonYear(mid,y)) return true; return false; };
+    const spanSpoon = (mid,from,to) => { for(let y=from;y<=to;y++) if(lastYear(mid,y)) return true; return false; };
+    const topPF = [...D.flatTeams].sort((a,b)=>b.pf-a.pf).slice(0,6).map((p,i)=>({
+      rank:i+1, name:p.name, year:yr(p), team:p.team, pf:f1(p.pf)
+    }));
+    const bestRec = [...D.flatTeams].sort((a,b)=> b.winPct-a.winPct || b.pf-a.pf).slice(0,6).map((b,i)=>({
+      rank:i+1, name:b.name, year:yr(b), team:b.team, rec:b.w+"-"+b.l+(b.t?"-"+b.t:"-0")
+    }));
+
+    // superlatives (franchise-based where relevant)
+    const worst = [...D.flatTeams].sort((a,b)=> a.winPct-b.winPct || a.pf-b.pf)[0];
+    const bestSeason = bestRec[0];
+    const topSeason = topPF[0];
+    const champCounts = {};
+    D.champions.forEach(c=>[c.champId,c.champCo].filter(Boolean).forEach(id=>champCounts[id]=(champCounts[id]||0)+1));
+    const mostTitleId = Object.keys(champCounts).sort((a,b)=>champCounts[b]-champCounts[a])[0];
+    const bestFranchise = D.franchises[0];
+    const winningestFranchise = [...D.franchises].sort((a,b)=>b.w-a.w)[0];
+
+    const supers = [
+      { label:"Most Championships", big:champCounts[mostTitleId]+"×", who:nm(mostTitleId), detail:"the closest thing to a dynasty", accent:"#f2c94c" },
+      { label:"Best Franchise Win %", big:pct(bestFranchise.winPct), who:bestFranchise.name, detail:'"'+bestFranchise.team+'" · '+bestFranchise.record, accent:"#e8ddc3" },
+      { label:"Winningest Franchise", big:winningestFranchise.w+"", who:winningestFranchise.name, detail:'"'+winningestFranchise.team+'" · '+winningestFranchise.seasons+" seasons", accent:"#f2c94c" },
+      { label:"Best Single Season", big:bestSeason.rec, who:bestSeason.name, detail:'"'+bestSeason.team+'" · '+bestSeason.year, accent:"#e8ddc3" },
+      { label:"Most Points, A Season", big:topSeason.pf, who:topSeason.name, detail:'"'+topSeason.team+'" · '+topSeason.year, accent:"#f2c94c" }
+    ];
+
+    const shortName = id => { const full = nm(id)||id; const m = full.match(/"([^"]+)"/); return m ? m[1] : full.replace(/"[^"]*"/,'').trim().split(/\s+/)[0]; };
+    const H2H_LABEL = { casey:"Casey", soy:"Soy", brent:"Brent", josh:"Josh", alexLam:"Lam", nick:"Nick", buser:"Buser", brandonJ:"Brandon", alexBoone:"Boone", jake:"Jake" };
+    const h2hName = id => H2H_LABEL[id] || shortName(id);
+
+    // ---- Real single-game & streak records ----
+    const rc = i => i < 3 ? "#f2c94c" : "#5f8a6d";
+    const g1 = n => (Math.round(n*10)/10).toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:1});
+    let highest=[], winStreaks=[], lossStreaks=[], domLead="", h2hHeaders=[], h2hRows=[], h2hFrRows=[];
+    if(R){
+      highest = R.highest.map((h,i)=>({ rank:i+1, rankColor:rc(i), name:nm(h.mid), when:"Wk "+h.week+", "+(h.season+1), opp:shortName(h.opp), oppScore:g1(h.oppScore), score:g1(h.score), won:wonYear(h.mid,h.season), spoon:lastYear(h.mid,h.season) }));
+      winStreaks = R.winStreaks.slice(0,6).map((s,i)=>({ rank:i+1, rankColor:rc(i), name:nm(s.mid), span:(s.from===s.to?("in "+(s.from+1)):((s.from+1)+"–"+(s.to+1))), len:s.len, won:spanCrown(s.mid,s.from,s.to), spoon:spanSpoon(s.mid,s.from,s.to) }));
+      lossStreaks = R.lossStreaks.slice(0,3).map((s,i)=>({ rank:i+1, name:nm(s.mid), span:(s.from===s.to?("in "+(s.from+1)):((s.from+1)+"–"+(s.to+1))), len:s.len, won:spanCrown(s.mid,s.from,s.to), spoon:spanSpoon(s.mid,s.from,s.to) }));
+      const d0 = R.dominance[0];
+      domLead = shortName(d0.mid)+" +"+g1(d0.rel)+" (Wk "+d0.week+", "+(d0.season+1)+")";
+      // head-to-head matrix
+      const cur = R.current;
+      h2hHeaders = cur.map(id => h2hName(id));
+      h2hRows = cur.map(rid => ({
+        name: h2hName(rid),
+        cells: cur.map(cid => {
+          if(rid===cid) return { txt:"—", bg:"#08210f", color:"#3a5c46" };
+          const rec = (R.h2h[rid]||{})[cid];
+          if(!rec || (rec.w+rec.l)===0) return { txt:"·", bg:"#0c2b17", color:"#3a5c46" };
+          const diff = rec.w - rec.l;
+          const bg = diff>0 ? "#123f22" : diff<0 ? "#2a1512" : "#0c2b17";
+          const color = diff>0 ? "#8fd6a0" : diff<0 ? "#e08a72" : "#9dc4aa";
+          return { txt: rec.w+"-"+rec.l, bg, color };
+        })
+      }));
+      // franchise-vs-franchise h2h (folds in inherited history)
+      const fr = R.h2hFranchise || {};
+      h2hFrRows = cur.map(rid => ({
+        name: h2hName(rid),
+        cells: cur.map(cid => {
+          if(rid===cid) return { txt:"—", bg:"#08210f", color:"#3a5c46" };
+          const rec = (fr[rid]||{})[cid];
+          if(!rec || (rec.w+rec.l)===0) return { txt:"·", bg:"#0c2b17", color:"#3a5c46" };
+          const diff = rec.w - rec.l;
+          const bg = diff>0 ? "#123f22" : diff<0 ? "#2a1512" : "#0c2b17";
+          const color = diff>0 ? "#8fd6a0" : diff<0 ? "#e08a72" : "#9dc4aa";
+          return { txt: rec.w+"-"+rec.l, bg, color };
+        })
+      }));
+    }
+
+    // ---- Manager peaks (tabbed, manager-based) ----
+    const rc0 = i => i < 3 ? "#f2c94c" : "#5f8a6d";
+    const curSet = R ? new Set(R.current) : null;
+    // champion set: "mid|year" for every title (data-season year)
+    const champSet = new Set();
+    D.champions.forEach(c => { champSet.add(c.champId+"|"+c.year); if(c.champCo) champSet.add(c.champCo+"|"+c.year); });
+    const eraS = s => s<=2009?"WC":(s<=2018?"OG":"");
+    const eraMeta = e => ({ era:e||"", eraColor: e==="WC" ? "#e8b84a" : "#b98f4a",
+      eraFull: e==="WC" ? "World Championship Era (2009–10) — lower-scoring settings" : (e==="OG" ? "OG Era (2011–19) — lower-scoring settings" : "") });
+    const byMgr = {};
+    D.flatTeams.forEach(t => { if(curSet && !curSet.has(t.id)) return; (byMgr[t.id] = byMgr[t.id] || []).push(t); });
+    const recordRank = Object.keys(byMgr).map(id => {
+      const b = byMgr[id].slice().sort((a,b)=> b.winPct-a.winPct || b.pf-a.pf)[0];
+      return { name:nm(id), value:b.w+"-"+b.l+(b.t?"-"+b.t:"-0"), sub:'"'+b.team+'" · '+(b.year+1), s:b.winPct*100000 + b.pf, won: champSet.has(id+"|"+b.year), lost: runnerUpSet.has(id+"|"+b.year), ...eraMeta(eraS(b.year)) };
+    }).sort((a,b)=>b.s-a.s);
+    const pointsRank = Object.keys(byMgr).map(id => {
+      const b = byMgr[id].slice().sort((a,b)=>b.pf-a.pf)[0];
+      return { name:nm(id), value:f1(b.pf), sub:'"'+b.team+'" · '+(b.year+1), s:b.pf, won: champSet.has(id+"|"+b.year), lost: runnerUpSet.has(id+"|"+b.year), ...eraMeta(eraS(b.year)) };
+    }).sort((a,b)=>b.s-a.s);
+    const playerRank = ((R&&R.mgrBestPlayer)||[]).filter(p=>!curSet||curSet.has(p.mid)).map(p => (
+      { name:nm(p.mid), value:f1(p.pts), sub:p.player+' ('+p.pos+') · '+(Number(p.season)+1), s:p.pts, won: champSet.has(p.mid+"|"+p.season), lost: runnerUpSet.has(p.mid+"|"+p.season), ...eraMeta(eraS(p.season)) }
+    )).sort((a,b)=>b.s-a.s);
+    const TABDEFS = [
+      { key:"record", label:"Best Record", unit:"Record", rows:recordRank, note:"Best regular-season record each manager has ever posted." },
+      { key:"points",  label:"Most Points, Season", unit:"Points", rows:pointsRank, note:"Most regular-season points each manager has scored in a single season." },
+      { key:"player",  label:"Best Player, Season", unit:"Points", rows:playerRank, note:"Highest-scoring single player each manager has rostered in a regular season (2009–2026). WC/OG tags flag the lower-scoring early eras." }
+    ];
+    const activeTab = this.state.tab;
+    const tabs = TABDEFS.map(t => ({
+      label: t.label,
+      onClick: () => this.setState({ tab: t.key }),
+      bg: t.key===activeTab ? "#f2c94c" : "#0f331f",
+      color: t.key===activeTab ? "#0c2b17" : "#cfe0d3",
+      border: t.key===activeTab ? "#f2c94c" : "#2a5238"
+    }));
+    const activeDef = TABDEFS.find(t=>t.key===activeTab) || TABDEFS[0];
+    const rankRows = activeDef.rows.map((r,i)=>({ rank:i+1, rankColor:rc0(i), name:r.name, value:r.value, sub:r.sub, won:!!r.won, lost:!!r.lost, era:r.era, eraColor:r.eraColor, eraFull:r.eraFull, bg:i%2?"#0e3320":"#0c2b17" }));
+    const rankUnit = activeDef.unit;
+    const rankNote = activeDef.note;
+
+    return { totalGames: D.meta.totalGames, table, topPF, bestRec, supers,
+             highest, winStreaks, lossStreaks, domLead, h2hHeaders, h2hRows, h2hFrRows,
+             tabs, rankRows, rankUnit, rankNote };
+  }
+}
+</script>
+</body>
+</html>

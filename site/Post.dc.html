@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Barlow:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+  // Must match Message-Board.dc.html's key and be set BEFORE message-board.js
+  // loads — the module reads it at import time to construct GiphyFetch. This
+  // page needs it now that replies can carry a GIF; without it the picker
+  // still opens but only the Shared Library tab works.
+  // Not a secret: Giphy SDK keys are meant to be embedded client-side.
+  window.NOCSBS_GIPHY_KEY = "MEPt8LJH23K86XZS4TVFRfHWC47YLZaS";
+</script>
+<script type="module" src="message-board.js"></script>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#0c2b17;font-family:'Barlow',sans-serif;}
+  a{text-decoration:none;color:inherit;}
+  /* Commissioner recap posts (via Kommissioner's Kompanion) can contain
+     inline GIFs -- bare <img src>, no size attributes, so this constrains
+     them to the post's own width instead of overflowing at native size. */
+  [data-r="post-body"] img{max-width:100%;height:auto;display:block;margin:8px 0;}
+  /* Box-score matchup layout (Kommissioner's Kompanion's postAssembly.ts
+     mk-* classes) -- mirrored exactly in that app's own repo,
+     github.com/michalec12/kommissioners-kompanion, at
+     src/renderer/src/styles/app.css under .post-body-render, for its in-app
+     preview. Keep both in sync: nothing enforces it now the two are separate
+     repos, and that preview is the only place a recap is checked before it
+     publishes, so a drift makes the preview lie rather than break. More
+     specific than the plain img rule above (2 classes vs 1) so .mk-logo's
+     fixed 48x48 wins regardless of source order. */
+  [data-r="post-body"] .mk-matchup{margin:20px 0;}
+  [data-r="post-body"] .mk-box{display:flex;justify-content:center;align-items:center;gap:24px;margin-bottom:12px;}
+  [data-r="post-body"] .mk-team{width:140px;text-align:center;}
+  [data-r="post-body"] .mk-logo{width:48px;height:48px;border-radius:50%;overflow:hidden;margin:0 auto 8px;}
+  [data-r="post-body"] .mk-logo img{width:100%;height:100%;object-fit:cover;margin:0;}
+  [data-r="post-body"] .mk-team-name{font-weight:700;font-size:14px;color:#fff;}
+  [data-r="post-body"] .mk-manager-name{font-size:11px;color:#9dc4aa;margin-top:1px;}
+  [data-r="post-body"] .mk-rank{font-size:11px;color:#9dc4aa;margin-top:2px;}
+  [data-r="post-body"] .mk-score-col{display:flex;flex-direction:column;align-items:center;min-width:90px;}
+  [data-r="post-body"] .mk-score{font-weight:700;font-size:22px;text-align:center;color:#fff;white-space:nowrap;}
+  [data-r="post-body"] .mk-history-label{font-weight:700;font-size:14px;text-align:center;margin-top:10px;color:#fff;}
+  [data-r="post-body"] .mk-history-record{font-size:17px;color:#e8ddc3;text-align:center;margin-top:2px;}
+  /* "Framed panel with markers" -- option 3 of 3 samples, owner's pick. */
+  [data-r="post-body"] .mk-stats{display:grid;grid-template-columns:1fr 1px 1fr;gap:20px;background:#0c2b17;border:1px solid #f2c94c;border-radius:4px;padding:14px 16px;margin:12px 0;}
+  [data-r="post-body"] .mk-stats-divider{background:#1e5230;}
+  [data-r="post-body"] .mk-stat-heading{font-weight:700;font-size:12px;text-align:center;color:#e8ddc3;margin:10px 0 6px;}
+  [data-r="post-body"] .mk-stat-heading:first-child{margin-top:0;}
+  [data-r="post-body"] .mk-stat-line{display:flex;align-items:baseline;gap:8px;font-size:12px;margin-bottom:4px;}
+  [data-r="post-body"] .mk-num{flex-shrink:0;width:16px;height:16px;border-radius:50%;background:#f2c94c;color:#0c2b17;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;}
+  [data-r="post-body"] .mk-arrow-up,[data-r="post-body"] .mk-arrow-down{flex-shrink:0;font-size:10px;line-height:1.6;}
+  [data-r="post-body"] .mk-arrow-up{color:#639922;}
+  [data-r="post-body"] .mk-arrow-down{color:#d85a30;}
+  /* Standings Snapshot: "framed ranked list" -- option 1 of 3 samples,
+     owner's pick. Reuses mk-num/mk-team-name/mk-manager-name/mk-rank from
+     the box score above instead of a parallel set of classes. Mirrored
+     exactly in github.com/michalec12/kommissioners-kompanion, at
+     src/renderer/src/styles/app.css under .post-body-render. */
+  [data-r="post-body"] .mk-standings{background:#0c2b17;border:1px solid #f2c94c;border-radius:4px;padding:6px 16px;margin:20px 0;}
+  [data-r="post-body"] .mk-standings-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid #1e5230;}
+  [data-r="post-body"] .mk-stat-heading+.mk-standings-row{border-top:none;}
+  [data-r="post-body"] .mk-standings-names{flex:1;min-width:0;}
+  [data-r="post-body"] .mk-standings-right{text-align:right;flex-shrink:0;}
+  [data-r="post-body"] .mk-standings-record{font-size:12px;color:#e8ddc3;font-weight:600;}
+  [data-r="post-body"] .mk-standings-row .mk-num{width:20px;height:20px;font-size:11px;}
+
+  @media (max-width:900px){
+    [data-r="navbar"]{ height:auto !important; padding-top:10px !important; padding-bottom:10px !important; padding-left:16px !important; padding-right:16px !important; flex-wrap:wrap !important; gap:6px 14px !important; }
+    [data-r="navlinks"]{ flex-wrap:wrap !important; gap:8px 12px !important; font-size:11.5px !important; }
+  }
+  /* Matches Message-Board.dc.html — three tiles are too narrow on a phone. */
+  @media (max-width:640px){
+    [data-r="gifgrid"]{ grid-template-columns:repeat(2,1fr) !important; }
+  }
+</style>
+</helmet>
+
+<div style="background:#0c2b17; min-height:100vh; font-family:'Barlow',sans-serif;">
+
+  <!-- NAV -->
+  <div style="background:#0c2b17; border-bottom:2px solid #e8ddc3; padding:0 40px; height:70px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:20;" data-r="navbar">
+    <a href="Home.dc.html" style="font-family:'Anton',sans-serif; color:#e8ddc3; letter-spacing:0.06em; font-size:26px;">NO CSBS</a>
+    <div style="display:flex; gap:14px; font-family:'Barlow Condensed',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; font-size:12.5px;" data-r="navlinks">
+      <a href="Home.dc.html" style="color:#cfe0d3;">Home</a>
+      <a href="This-Season.dc.html" style="color:#cfe0d3;">This Season</a>
+      <a href="Message-Board.dc.html" style="color:#f2c94c;">Message Board</a>
+      <a href="Members.dc.html" style="color:#cfe0d3;">Members</a>
+      <a href="Hall-of-Winners.dc.html" style="color:#cfe0d3;">Hall of Winners</a>
+      <a href="Draft-History.dc.html" style="color:#cfe0d3;">Draft Room</a>
+      <a href="League-Manager-Records.dc.html" style="color:#cfe0d3;">Manager Records</a>
+      <a href="The-Pantheon.dc.html" style="color:#cfe0d3;">The Pantheon</a>
+      <a href="Pit-of-Despair.dc.html" style="color:#cfe0d3;">Pit of Despair</a>
+      <a href="Constitution.dc.html" style="color:#cfe0d3;">Constitution</a>
+    </div>
+  </div>
+
+  <!-- SIGN-IN GATE -->
+  <sc-if value="{{ showSignInGate }}">
+    <div style="background:#0c2b17; padding:80px clamp(18px,4.5vw,40px); display:flex; justify-content:center;">
+      <div style="max-width:460px; text-align:center;">
+        <div style="font-family:'Anton',sans-serif; color:#fff; font-size:30px;">MEMBERS ONLY</div>
+        <div style="color:#9dc4aa; font-size:15px; margin-top:10px; line-height:1.6;">Sign in with the Google account the commissioner has on file to read and post on the board.</div>
+        <button onclick="{{ handleSignIn }}" style="margin-top:24px; background:#f2c94c; color:#0c2b17; border:none; font-family:'Anton',sans-serif; text-transform:uppercase; letter-spacing:0.04em; padding:16px 30px; font-size:17px; cursor:pointer;">Sign in with Google</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- NOT ON ROSTER -->
+  <sc-if value="{{ showNotRecognized }}">
+    <div style="background:#0c2b17; padding:80px clamp(18px,4.5vw,40px); display:flex; justify-content:center;">
+      <div style="max-width:480px; text-align:center;">
+        <div style="font-family:'Anton',sans-serif; color:#fff; font-size:26px;">NOT ON THE ROSTER</div>
+        <div style="color:#9dc4aa; font-size:15px; margin-top:10px; line-height:1.6;">Signed in as <span style="color:#e8ddc3;">{{ signedInEmail }}</span> — this account isn't on the commissioner's member list. Ask the commissioner to add it.</div>
+        <a href="#" onclick="{{ handleSignOut }}" style="display:inline-block; margin-top:20px; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#f2c94c;">Sign in with a different account →</a>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- POST NOT FOUND -->
+  <sc-if value="{{ showNotFound }}">
+    <div style="background:#0c2b17; padding:80px clamp(18px,4.5vw,40px); display:flex; justify-content:center;">
+      <div style="max-width:460px; text-align:center;">
+        <div style="font-family:'Anton',sans-serif; color:#fff; font-size:26px;">POST NOT FOUND</div>
+        <div style="color:#9dc4aa; font-size:15px; margin-top:10px;">It may have been deleted.</div>
+        <a href="Message-Board.dc.html" style="display:inline-block; margin-top:20px; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#f2c94c;">← Back to Message Board</a>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- POST -->
+  <sc-if value="{{ showPost }}">
+  <div style="padding:36px clamp(18px,4.5vw,40px) 90px;">
+    <div style="max-width:800px; margin:0 auto;">
+
+      <a href="Message-Board.dc.html" style="display:inline-block; margin-bottom:20px; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#7fa98c; font-size:12.5px;">← Back to Message Board</a>
+
+      <div style="background:{{ postBg }}; border:{{ postBorder }};">
+        <sc-if value="{{ isPinned }}">
+          <div style="background:#f2c94c; padding:9px 16px;">
+            <span style="font-family:'Space Mono',monospace; color:#0c2b17; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; font-weight:700;">📌 Commissioner Recap</span>
+          </div>
+        </sc-if>
+        <div style="padding:24px;">
+          <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(26px,5vw,40px); line-height:1.05;">{{ postTitle }}</div>
+          <div style="display:flex; align-items:center; gap:10px; margin-top:16px;">
+            {{ authorAvatarEl }}
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif; color:#e8ddc3; font-weight:700; font-size:15px;">{{ authorName }}</div>
+              <div style="font-family:'Space Mono',monospace; color:#5f7d68; font-size:11px;">{{ postTimeLabel }}</div>
+            </div>
+          </div>
+          {{ headerImageEl }}
+          <div style="color:#dce8de; font-size:16px; line-height:1.7; margin-top:20px;">{{ postBodyEl }}</div>
+          {{ postMediaEl }}
+          <sc-if value="{{ canManagePost }}">
+            <div style="display:flex; gap:16px; margin-top:20px; padding-top:16px; border-top:1px solid #1e5230;">
+              <a href="{{ editHref }}" style="font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#7fa98c; font-size:12.5px;">Edit</a>
+              <a href="#" onclick="{{ handleDeletePost }}" style="font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#cf6b45; font-size:12.5px;">Delete</a>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <!-- REPLIES -->
+      <div style="margin-top:30px;">
+        <div style="font-family:'Space Mono',monospace; color:#f2c94c; letter-spacing:0.18em; font-size:12px; text-transform:uppercase; margin-bottom:14px;">{{ repliesHeading }}</div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <sc-for list="{{ replyItems }}" as="r" hint-placeholder-count="3">
+            {{ r.el }}
+          </sc-for>
+        </div>
+
+        <div style="margin-top:18px; background:#123f22; border:1px solid #1e5230; padding:14px;">
+          <textarea value="{{ replyText }}" onChange="{{ handleReplyTextChange }}" placeholder="{{ replyPlaceholder }}" rows="3" style="width:100%; background:#0c2b17; border:1px solid #1e5230; color:#e8ddc3; padding:10px 12px; font-family:'Barlow',sans-serif; font-size:14px; resize:vertical;"></textarea>
+          <sc-if value="{{ replyPendingGif }}">
+            <div style="position:relative; display:inline-block; margin-top:10px;">
+              <img src="{{ replyPendingGif }}" style="max-width:220px; border:1px solid #1e5230; display:block;">
+              <button onclick="{{ handleRemoveReplyGif }}" title="Remove GIF" style="position:absolute; top:4px; right:4px; background:#0c2b17; color:#e8ddc3; border:none; width:22px; height:22px; cursor:pointer;">✕</button>
+            </div>
+          </sc-if>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; gap:10px;">
+            <button onclick="{{ handleOpenGifPicker }}" title="Add GIF" style="background:#0c2b17; border:1px solid #1e5230; color:#8fbf9d; height:32px; padding:0 10px; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:12px; text-transform:uppercase;">GIF</button>
+            <button onclick="{{ handleAddReply }}" disabled="{{ replyDisabled }}" style="background:{{ replyButtonBg }}; color:#0c2b17; border:none; font-family:'Anton',sans-serif; text-transform:uppercase; letter-spacing:0.03em; padding:10px 22px; font-size:13px; cursor:pointer;">{{ replyButtonLabel }}</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- GIF PICKER MODAL -->
+  <!-- Same picker as Message-Board.dc.html's composer, feeding the reply box
+       here instead of a new post. Kept as a copy rather than factored out:
+       this site has no build step and the dc-runtime's component-import
+       feature is unused everywhere else, so sharing it would mean inventing
+       a pattern for one modal. If a third page ever needs it, factor it then. -->
+  <sc-if value="{{ gifPickerOpen }}">
+    <div onclick="{{ handleCloseGifPicker }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:40; display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div onclick="{{ stopPropagation }}" style="background:#123f22; border:1px solid #1e5230; width:100%; max-width:560px; max-height:80vh; display:flex; flex-direction:column;">
+        <div style="display:flex; border-bottom:1px solid #1e5230;">
+          <button onclick="{{ handleGifTabSearch }}" style="flex:1; padding:14px; background:{{ searchTabBg }}; color:{{ searchTabColor }}; border:none; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; cursor:pointer;">Search Giphy</button>
+          <button onclick="{{ handleGifTabLibrary }}" style="flex:1; padding:14px; background:{{ libraryTabBg }}; color:{{ libraryTabColor }}; border:none; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; cursor:pointer;">Shared Library</button>
+          <button onclick="{{ handleCloseGifPicker }}" style="width:44px; background:transparent; border:none; color:#7fa98c; cursor:pointer; font-size:16px;">✕</button>
+        </div>
+
+        <sc-if value="{{ showGifSearchTab }}">
+          <div style="padding:12px; border-bottom:1px solid #1e5230;">
+            <input value="{{ gifQuery }}" onChange="{{ handleGifQueryChange }}" placeholder="Search GIPHY…" style="width:100%; background:#0c2b17; border:1px solid #1e5230; color:#e8ddc3; padding:10px 12px; font-family:'Barlow',sans-serif; font-size:14px;">
+          </div>
+        </sc-if>
+
+        <div style="overflow-y:auto; padding:12px;">
+          <sc-if value="{{ gifNeedsKey }}">
+            <div style="color:#9dc4aa; font-size:13px; text-align:center; padding:30px 10px; line-height:1.6;">Giphy search isn't configured yet — set <span style="font-family:'Space Mono',monospace; color:#e8ddc3;">window.NOCSBS_GIPHY_KEY</span> in the page's helmet. The Shared Library tab still works.</div>
+          </sc-if>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;" data-r="gifgrid">
+            <sc-for list="{{ gifTiles }}" as="g" hint-placeholder-count="9">
+              <img src="{{ g.thumbUrl }}" onclick="{{ g.onPick }}" style="width:100%; aspect-ratio:1; object-fit:cover; cursor:pointer; border:1px solid #1e5230;">
+            </sc-for>
+          </div>
+          <sc-if value="{{ gifEmptyMsg }}">
+            <div style="color:#5f7d68; font-size:13px; text-align:center; padding:30px 10px;">{{ gifEmptyMsg }}</div>
+          </sc-if>
+        </div>
+
+        <div style="padding:8px 12px; border-top:1px solid #1e5230; text-align:center;">
+          <span style="font-family:'Space Mono',monospace; color:#5f7d68; font-size:10px; letter-spacing:0.14em; text-transform:uppercase;">Powered by GIPHY</span>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- FOOTER -->
+  <div style="background:#0c2b17; border-top:2px solid #1e5230; padding:26px clamp(18px,4.5vw,40px); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <span style="font-family:'Barlow Condensed',sans-serif; color:#5f7d68; letter-spacing:0.14em; font-size:14px; text-transform:uppercase;">NO CSBS · No Chicken Shit Bullshit</span>
+    <span style="font-family:'Space Mono',monospace; color:#5f7d68; font-size:12px;">MINNESOTA · SINCE 2008</span>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      mb: null, post: undefined, replies: [], replyText: '', postingReply: false,
+      replyGif: null,
+      gifPickerOpen: false, gifTab: 'search', gifQuery: '', gifResults: [], gifLoading: false,
+    };
+    this._postSubStarted = false;
+  }
+
+  componentDidMount() {
+    try {
+      // Fragment, not query string — see the matching note in
+      // Message-Board.dc.html; static-host clean-URL redirects strip query
+      // strings but never touch the fragment.
+      this.postId = decodeURIComponent((window.location.hash || '').replace(/^#/, ''));
+    } catch { this.postId = null; }
+    this._iv = setInterval(() => {
+      if (window.NOCSBS_MB) {
+        clearInterval(this._iv);
+        this._unsub = window.NOCSBS_MB.subscribe((mb) => this.handleMbUpdate(mb));
+        this.handleMbUpdate(window.NOCSBS_MB.getState());
+      }
+    }, 60);
+  }
+  componentWillUnmount() {
+    if (this._iv) clearInterval(this._iv);
+    if (this._unsub) this._unsub();
+    if (this._unsubPost) this._unsubPost();
+    if (this._unsubReplies) this._unsubReplies();
+    // The GIF search debounce would otherwise fire setState after unmount.
+    if (this._gifDebounce) clearTimeout(this._gifDebounce);
+  }
+
+  handleMbUpdate = (mb) => {
+    this.setState({ mb: { ...mb } });
+    const allowed = !!(mb.user && mb.member && mb.member.active);
+    if (allowed && !this._postSubStarted) {
+      this._postSubStarted = true;
+      if (!this.postId) {
+        this.setState({ post: null });
+        return;
+      }
+      this._unsubPost = window.NOCSBS_MB.subscribeToPost(this.postId, (post) => this.setState({ post }));
+      this._unsubReplies = window.NOCSBS_MB.subscribeReplies(this.postId, (replies) => this.setState({ replies }));
+    }
+  };
+
+  handleSignIn = () => { window.NOCSBS_MB && window.NOCSBS_MB.signIn(); };
+  handleSignOut = (e) => { e && e.preventDefault(); window.NOCSBS_MB && window.NOCSBS_MB.signOut(); };
+
+  handleDeletePost = (e) => {
+    e && e.preventDefault();
+    if (!window.confirm("Delete this post? This can't be undone.")) return;
+    window.NOCSBS_MB.deletePost(this.postId).then(() => {
+      window.location.href = 'Message-Board.dc.html';
+    });
+  };
+
+  handleReplyTextChange = (e) => this.setState({ replyText: e.target.value });
+
+  // ---- reply GIF picker ------------------------------------------------
+  // Mirrors Message-Board.dc.html's composer handlers; the only difference is
+  // where the picked GIF lands (state.replyGif instead of composerPendingGif).
+  handleOpenGifPicker = () => this.setState({ gifPickerOpen: true, gifTab: 'search', gifResults: [] });
+  handleCloseGifPicker = () => this.setState({ gifPickerOpen: false });
+  handleGifTabSearch = () => this.setState({ gifTab: 'search' });
+  handleGifTabLibrary = () => this.setState({ gifTab: 'library' });
+  handleRemoveReplyGif = () => this.setState({ replyGif: null });
+  stopPropagation = (e) => e.stopPropagation();
+
+  handleGifQueryChange = (e) => {
+    const term = e.target.value;
+    this.setState({ gifQuery: term });
+    clearTimeout(this._gifDebounce);
+    this._gifDebounce = setTimeout(() => this.runGifSearch(term), 300);
+  };
+  runGifSearch = async (term) => {
+    if (!window.NOCSBS_MB || !window.NOCSBS_MB.hasGiphyKey()) return;
+    this.setState({ gifLoading: true });
+    try {
+      const results = await window.NOCSBS_MB.searchGifs(term);
+      this.setState({ gifResults: results || [], gifLoading: false });
+    } catch (err) {
+      this.setState({ gifLoading: false });
+    }
+  };
+  renderGifTile(gif) {
+    const thumb = gif.images && gif.images.fixed_height_small ? gif.images.fixed_height_small.url : (gif.images && gif.images.fixed_height ? gif.images.fixed_height.url : '');
+    return { thumbUrl: thumb, onPick: () => this.pickGifFromSearch(gif) };
+  }
+  pickGifFromSearch = async (gif) => {
+    this.setState({ replyGif: gif.images.fixed_height.url, gifPickerOpen: false });
+    // Picking from search also seeds the shared library, same as the composer —
+    // failure here is non-fatal, the reply still gets its GIF.
+    try {
+      const existing = (this.state.mb && this.state.mb.gifLibrary) || [];
+      if (!existing.some((g) => g.giphyId === String(gif.id))) {
+        await window.NOCSBS_MB.addGifToLibrary(gif);
+      }
+    } catch {}
+  };
+  pickGifFromLibrary = (gifDoc) => {
+    this.setState({ replyGif: gifDoc.url, gifPickerOpen: false });
+  };
+
+  handleAddReply = async () => {
+    const text = this.state.replyText.trim();
+    const gif = this.state.replyGif;
+    // A GIF on its own is a valid reply — only block when there's neither.
+    if ((!text && !gif) || this.state.postingReply) return;
+    this.setState({ postingReply: true });
+    try {
+      await window.NOCSBS_MB.addReply(this.postId, text, gif);
+      this.setState({ replyText: '', replyGif: null });
+    } finally {
+      this.setState({ postingReply: false });
+    }
+  };
+  handleDeleteReply = (replyId) => {
+    if (!window.confirm('Delete this reply?')) return;
+    window.NOCSBS_MB.deleteReply(this.postId, replyId);
+  };
+
+  renderReply(reply) {
+    const mb = this.state.mb || {};
+    const me = mb.user;
+    const canManage = !!(me && (reply.authorEmail === me.email || (mb.member && mb.member.isAdmin)));
+    const when = reply.createdAt && reply.createdAt.toDate ? reply.createdAt.toDate() : (reply.createdAt ? new Date(reply.createdAt) : null);
+    const timeLabel = when ? when.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'just now';
+    return React.createElement('div', { style: { background: '#123f22', border: '1px solid #1e5230', padding: '12px 14px' } },
+      React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' } },
+        React.createElement('span', { style: { fontFamily: "'Barlow Condensed',sans-serif", color: '#e8ddc3', fontWeight: 700, fontSize: 13.5 } }, reply.authorName || reply.authorEmail),
+        React.createElement('span', { style: { fontFamily: "'Space Mono',monospace", color: '#5f7d68', fontSize: 10.5 } }, timeLabel)
+      ),
+      // A GIF-only reply has an empty body — skip the text node entirely
+      // rather than rendering an empty div that just adds dead vertical space.
+      reply.body
+        ? React.createElement('div', { style: { color: '#dce8de', fontSize: 14, lineHeight: 1.55, marginTop: 6, whiteSpace: 'pre-wrap' } }, reply.body)
+        : null,
+      reply.gifUrl
+        ? React.createElement('img', {
+            key: 'gif', src: reply.gifUrl, alt: '',
+            style: { maxWidth: 260, display: 'block', marginTop: 8, border: '1px solid #1e5230' },
+          })
+        : null,
+      canManage ? React.createElement('a', {
+        href: '#', onClick: (e) => { e.preventDefault(); this.handleDeleteReply(reply.id); },
+        style: { display: 'inline-block', marginTop: 8, fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#cf6b45', fontSize: 10.5 },
+      }, 'Delete') : null
+    );
+  }
+
+  renderVals() {
+    const mb = this.state.mb;
+    // See the matching note in Message-Board.dc.html: wait for mb.ready
+    // (auth state genuinely resolved) before showing the sign-in gate, to
+    // avoid a false flash of it for an already-signed-in member.
+    if (!mb || !mb.ready) return { showSignInGate: false, showNotRecognized: false, showNotFound: false, showPost: false };
+
+    const user = mb.user;
+    const member = mb.member;
+    const isMember = !!(user && member && member.active);
+    const post = this.state.post;
+
+    if (!isMember) {
+      return {
+        showSignInGate: !user,
+        showNotRecognized: !!(user && !isMember),
+        signedInEmail: user ? user.email : '',
+        showNotFound: false,
+        showPost: false,
+        handleSignIn: this.handleSignIn,
+        handleSignOut: this.handleSignOut,
+      };
+    }
+
+    if (post === undefined) {
+      return { showSignInGate: false, showNotRecognized: false, showNotFound: false, showPost: false };
+    }
+    if (post === null) {
+      return { showSignInGate: false, showNotRecognized: false, showNotFound: true, showPost: false };
+    }
+
+    const canManagePost = !!(user && (post.authorEmail === user.email || (member && member.isAdmin)));
+    const when = post.createdAt && post.createdAt.toDate ? post.createdAt.toDate() : (post.createdAt ? new Date(post.createdAt) : null);
+    const postTimeLabel = (when ? when.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'just now') + (post.editedAt ? ' · edited' : '');
+
+    const media = [];
+    if (post.gifUrl) media.push(React.createElement('img', { key: 'gif', src: post.gifUrl, style: { maxWidth: 320, display: 'block', marginTop: 16, border: '1px solid #1e5230' } }));
+    if (post.imageUrls && post.imageUrls.length) {
+      media.push(React.createElement('div', { key: 'imgs', style: { display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 16 } },
+        post.imageUrls.map((url, i) => React.createElement('img', { key: i, src: url, style: { maxWidth: 280, maxHeight: 280, objectFit: 'cover', border: '1px solid #1e5230' } }))
+      ));
+    }
+
+    const replies = this.state.replies || [];
+    // A GIF alone is enough to enable the button — the old check required text.
+    const replyDisabled = this.state.postingReply || (!this.state.replyText.trim() && !this.state.replyGif);
+
+    let gifTiles = [];
+    let gifEmptyMsg = null;
+    const showGifSearchTab = this.state.gifTab === 'search';
+    if (this.state.gifPickerOpen) {
+      if (showGifSearchTab) {
+        gifTiles = (this.state.gifResults || []).map((g) => this.renderGifTile(g));
+        if (!this.state.gifLoading && gifTiles.length === 0 && window.NOCSBS_MB && window.NOCSBS_MB.hasGiphyKey()) {
+          gifEmptyMsg = this.state.gifQuery ? 'No results.' : 'Type to search GIPHY.';
+        }
+      } else {
+        gifTiles = (mb.gifLibrary || []).map((g) => ({ thumbUrl: g.url, onPick: () => this.pickGifFromLibrary(g) }));
+        if (gifTiles.length === 0) gifEmptyMsg = 'No GIFs added yet — search and pick one to start the library.';
+      }
+    }
+
+    return {
+      showSignInGate: false,
+      showNotRecognized: false,
+      showNotFound: false,
+      showPost: true,
+
+      isPinned: !!post.isCommissionerRecap,
+      postBg: post.isCommissionerRecap ? '#0c2b17' : '#123f22',
+      postBorder: post.isCommissionerRecap ? '2px solid #f2c94c' : '1px solid #1e5230',
+      postTitle: post.title || '(untitled)',
+      authorName: post.authorName || post.authorEmail,
+      postTimeLabel,
+      authorAvatarEl: post.authorPhotoURL
+        ? React.createElement('img', { src: post.authorPhotoURL, style: { width: 34, height: 34, borderRadius: '50%', objectFit: 'cover' } })
+        : React.createElement('div', { style: { width: 34, height: 34, borderRadius: '50%', background: '#1e5230' } }),
+      headerImageEl: post.headerImageUrl
+        ? React.createElement('img', { src: post.headerImageUrl, style: { width: '100%', display: 'block', marginTop: 16, border: '1px solid #1e5230' } })
+        : null,
+      postBodyEl: React.createElement('div', { 'data-r': 'post-body', dangerouslySetInnerHTML: { __html: post.bodyHtml || '' } }),
+      postMediaEl: media.length ? React.createElement('div', null, media) : null,
+
+      canManagePost,
+      editHref: 'Message-Board.dc.html#edit=' + encodeURIComponent(post.id),
+      handleDeletePost: this.handleDeletePost,
+
+      repliesHeading: replies.length + (replies.length === 1 ? ' Reply' : ' Replies'),
+      replyItems: replies.map((r) => ({ id: r.id, el: this.renderReply(r) })),
+      replyText: this.state.replyText,
+      handleReplyTextChange: this.handleReplyTextChange,
+      handleAddReply: this.handleAddReply,
+      replyDisabled,
+      replyButtonBg: replyDisabled ? '#5f7d68' : '#f2c94c',
+      replyButtonLabel: this.state.postingReply ? 'Posting…' : 'Reply',
+      replyPlaceholder: this.state.replyGif ? 'Add a comment (optional)…' : 'Write a reply…',
+      replyPendingGif: this.state.replyGif,
+      handleRemoveReplyGif: this.handleRemoveReplyGif,
+
+      gifPickerOpen: this.state.gifPickerOpen,
+      handleOpenGifPicker: this.handleOpenGifPicker,
+      handleCloseGifPicker: this.handleCloseGifPicker,
+      handleGifTabSearch: this.handleGifTabSearch,
+      handleGifTabLibrary: this.handleGifTabLibrary,
+      handleGifQueryChange: this.handleGifQueryChange,
+      stopPropagation: this.stopPropagation,
+      gifQuery: this.state.gifQuery,
+      gifTiles,
+      gifEmptyMsg,
+      showGifSearchTab,
+      gifNeedsKey: showGifSearchTab && window.NOCSBS_MB && !window.NOCSBS_MB.hasGiphyKey(),
+      searchTabBg: showGifSearchTab ? '#0c2b17' : 'transparent',
+      searchTabColor: showGifSearchTab ? '#f2c94c' : '#7fa98c',
+      libraryTabBg: !showGifSearchTab ? '#0c2b17' : 'transparent',
+      libraryTabColor: !showGifSearchTab ? '#f2c94c' : '#7fa98c',
+    };
+  }
+}
+</script>
+</body>
+</html>

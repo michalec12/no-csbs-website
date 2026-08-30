@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Barlow:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="league-data.js"></script>
+<script src="draft-data.js"></script>
+<script src="pantheon-data.js"></script>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#0c2b17;font-family:'Barlow',sans-serif;}
+  a{text-decoration:none;color:inherit;}
+
+  @media (max-width:760px){ [data-r="c2"]{ grid-template-columns:1fr !important; } }
+  @media (max-width:880px){ [data-r="c3"],[data-r="c5"],[data-r="c5nav"]{ grid-template-columns:repeat(2,1fr) !important; } }
+  @media (max-width:520px){ [data-r="c3"],[data-r="c5"],[data-r="c5nav"]{ grid-template-columns:1fr !important; } }
+  @media (max-width:900px){
+    [data-r="navbar"]{ height:auto !important; padding-top:10px !important; padding-bottom:10px !important; padding-left:16px !important; padding-right:16px !important; flex-wrap:wrap !important; gap:6px 14px !important; }
+    [data-r="navlinks"]{ flex-wrap:wrap !important; gap:8px 12px !important; font-size:11.5px !important; }
+  }
+</style>
+</helmet>
+
+<div style="background:#0c2b17; min-height:100vh; font-family:'Barlow',sans-serif;">
+
+  <!-- NAV -->
+  <div style="background:#0c2b17; border-bottom:2px solid #e8ddc3; padding:0 40px; height:70px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:20;" data-r="navbar">
+    <a href="Home.dc.html" style="font-family:'Anton',sans-serif; color:#e8ddc3; letter-spacing:0.06em; font-size:26px;">NO CSBS</a>
+    <div style="display:flex; gap:14px; font-family:'Barlow Condensed',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; font-size:12.5px;" data-r="navlinks">
+      <a href="Home.dc.html" style="color:#cfe0d3;">Home</a>
+      <a href="This-Season.dc.html" style="color:#cfe0d3;">This Season</a>
+      <a href="Message-Board.dc.html" style="color:#cfe0d3;">Message Board</a>
+      <a href="Members.dc.html" style="color:#cfe0d3;">Members</a>
+      <a href="Hall-of-Winners.dc.html" style="color:#cfe0d3;">Hall of Winners</a>
+      <a href="Draft-History.dc.html" style="color:#f2c94c;">Draft Room</a>
+      <a href="League-Manager-Records.dc.html" style="color:#cfe0d3;">Manager Records</a>
+      <a href="The-Pantheon.dc.html" style="color:#cfe0d3;">The Pantheon</a>
+      <a href="Pit-of-Despair.dc.html" style="color:#cfe0d3;">Pit of Despair</a>
+      <a href="Constitution.dc.html" style="color:#cfe0d3;">Constitution</a>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div style="background:#123f22; padding:52px clamp(18px,4.5vw,40px); border-bottom:2px solid #1e5230;">
+    <div style="max-width:1280px; margin:0 auto;">
+      <div style="font-family:'Space Mono',monospace; color:#f2c94c; letter-spacing:0.24em; font-size:13px; text-transform:uppercase;">Every Pick, Every Year</div>
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(38px,8vw,72px); line-height:0.9; margin-top:6px;">THE DRAFT ROOM</div>
+      <div style="color:#9dc4aa; font-size:17px; margin-top:10px; max-width:760px; line-height:1.5;">The complete draft archive — every roster, every keeper, straight from the ESPN recaps. Pick a year to relive the reaches and the steals.</div>
+    </div>
+  </div>
+
+  <!-- DRAFT ANALYTICS (top) -->
+  <div style="background:#08210f; padding:44px clamp(18px,4.5vw,40px); border-bottom:1px solid #123f22;">
+    <div style="max-width:1280px; margin:0 auto;">
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(27px,5vw,38px);">DRAFT-ROOM ANALYTICS</div>
+      <div style="color:#7fa98c; font-size:14px; margin-top:6px; max-width:820px; line-height:1.5;">Patterns across <strong style="color:#e8ddc3;">all {{ draftYearsCount }} drafts on record ({{ draftYearsRange }})</strong> — the snake era through the auction era.</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-top:26px;">
+        <div>
+          <div style="font-family:'Anton',sans-serif; color:#fff; font-size:26px; margin-bottom:14px;">MOST DRAFTED BY ONE MANAGER</div>
+          <sc-for list="{{ mostDrafted }}" as="p" hint-placeholder-count="10">
+            <div style="display:flex; align-items:center; gap:14px; background:#0f331f; border:1px solid #1e5230; padding:11px 15px; margin-bottom:7px;">
+              <div style="font-family:'Anton',sans-serif; color:{{ p.rankColor }}; font-size:20px; width:30px;">{{ p.rank }}</div>
+              <div style="flex:1;">
+                <div style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; font-size:18px;">{{ p.player }} <span style="color:#5f8a6d; font-weight:500; font-size:13px;">{{ p.pos }}</span></div>
+                <div style="color:#8fb89c; font-size:12.5px;">by {{ p.manager }} · {{ p.years }}</div>
+              </div>
+              <div style="font-family:'Space Mono',monospace; color:#e8ddc3; font-size:16px;">{{ p.count }}×</div>
+            </div>
+          </sc-for>
+        </div>
+        <div>
+          <div style="font-family:'Anton',sans-serif; color:#fff; font-size:26px; margin-bottom:14px;">LONGEST CONSECUTIVE-YEAR RUNS</div>
+          <sc-for list="{{ streaks }}" as="p" hint-placeholder-count="10">
+            <div style="display:flex; align-items:center; gap:14px; background:#0f331f; border:1px solid #1e5230; padding:11px 15px; margin-bottom:7px;">
+              <div style="font-family:'Anton',sans-serif; color:{{ p.rankColor }}; font-size:20px; width:30px;">{{ p.rank }}</div>
+              <div style="flex:1;">
+                <div style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; font-size:18px;">{{ p.player }} <span style="color:#5f8a6d; font-weight:500; font-size:13px;">{{ p.pos }}</span></div>
+                <div style="color:#8fb89c; font-size:12.5px;">{{ p.manager }} · {{ p.span }}</div>
+              </div>
+              <div style="font-family:'Space Mono',monospace; color:#e8ddc3; font-size:15px;">{{ p.len }} yrs</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JOURNEYMEN (moved from The Pantheon) -->
+  <div style="background:#0c2b17; padding:44px clamp(18px,4.5vw,40px); border-bottom:1px solid #123f22;">
+    <div style="max-width:1280px; margin:0 auto;">
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(27px,5vw,38px);">JOURNEYMEN — MOST-TRAVELED PLAYERS</div>
+      <div style="color:#7fa98c; font-size:14px; margin:6px 0 18px; max-width:820px; line-height:1.5;">Drafted by the most different managers across all {{ draftYearsCount }} drafts — the guys everyone has taken a chance on.</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px;">
+        <sc-for list="{{ journeymen }}" as="p" hint-placeholder-count="10">
+          <div style="display:flex; align-items:center; gap:14px; background:#0f331f; border:1px solid #1e5230; padding:11px 15px;">
+            <div style="font-family:'Anton',sans-serif; color:{{ p.rankColor }}; font-size:20px; width:30px;">{{ p.rank }}</div>
+            <div style="flex:1;">
+              <div style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; font-size:18px;">{{ p.player }} <span style="color:#5f8a6d; font-weight:500; font-size:13px;">{{ p.pos }}</span></div>
+              <div style="color:#8fb89c; font-size:12.5px;">{{ p.picks }} total draft picks</div>
+            </div>
+            <div style="font-family:'Space Mono',monospace; color:#e8ddc3; font-size:15px;">{{ p.teams }} teams</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRAFT-VALUE SWINGS -->
+  <div style="background:#08210f; padding:44px clamp(18px,4.5vw,40px);">
+    <div style="max-width:1200px; margin:0 auto;">
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:32px;">DRAFT-VALUE SWINGS</div>
+      <div style="color:#7fa98c; font-size:13px; margin:4px 0 18px;">The widest gap between what a player cost from one draft to another — how the league's opinion of a guy swung over the years.</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px;" data-r="c2">
+        <div>
+          <div style="font-family:'Anton',sans-serif; color:#fff; font-size:24px; margin-bottom:12px;">SNAKE ERA · BIGGEST SLOT GAP</div>
+          <sc-for list="{{ snakeGap }}" as="p" hint-placeholder-count="10">
+            <div style="display:flex; align-items:center; gap:14px; background:#0f331f; border:1px solid #1e5230; padding:11px 15px; margin-bottom:7px;">
+              <div style="font-family:'Anton',sans-serif; color:{{ p.rankColor }}; font-size:20px; width:30px;">{{ p.rank }}</div>
+              <div style="flex:1;">
+                <div style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; font-size:18px;">{{ p.player }} <span style="color:#5f8a6d; font-weight:500; font-size:13px;">{{ p.pos }}</span><sc-if value="{{ p.era }}" hint-placeholder-val="{{ false }}"><span title="{{ p.eraFull }}" style="display:inline-block; font-family:'Space Mono',monospace; font-size:9px; font-weight:700; letter-spacing:0.08em; padding:1px 5px; margin-left:6px; vertical-align:middle; color:{{ p.eraColor }}; border:1px solid {{ p.eraColor }};">{{ p.era }}</span></sc-if></div>
+                <div style="color:#8fb89c; font-size:12px;">{{ p.hi }} → {{ p.lo }}</div>
+              </div>
+              <div style="font-family:'Space Mono',monospace; color:#e8ddc3; font-size:15px;">{{ p.diff }} spots</div>
+            </div>
+          </sc-for>
+        </div>
+        <div>
+          <div style="font-family:'Anton',sans-serif; color:#fff; font-size:24px; margin-bottom:12px;">AUCTION ERA · BIGGEST PRICE GAP</div>
+          <sc-for list="{{ aucGap }}" as="p" hint-placeholder-count="10">
+            <div style="display:flex; align-items:center; gap:14px; background:#0f331f; border:1px solid #1e5230; padding:11px 15px; margin-bottom:7px;">
+              <div style="font-family:'Anton',sans-serif; color:{{ p.rankColor }}; font-size:20px; width:30px;">{{ p.rank }}</div>
+              <div style="flex:1;">
+                <div style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; font-size:18px;">{{ p.player }} <span style="color:#5f8a6d; font-weight:500; font-size:13px;">{{ p.pos }}</span><sc-if value="{{ p.era }}" hint-placeholder-val="{{ false }}"><span title="{{ p.eraFull }}" style="display:inline-block; font-family:'Space Mono',monospace; font-size:9px; font-weight:700; letter-spacing:0.08em; padding:1px 5px; margin-left:6px; vertical-align:middle; color:{{ p.eraColor }}; border:1px solid {{ p.eraColor }};">{{ p.era }}</span></sc-if></div>
+                <div style="color:#8fb89c; font-size:12px;">{{ p.hi }} → {{ p.lo }}</div>
+              </div>
+              <div style="font-family:'Space Mono',monospace; color:#e8ddc3; font-size:15px;">{{ p.diff }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- GREATEST ROSTERS (moved from The Pantheon) -->
+  <div style="background:#08210f; padding:44px clamp(18px,4.5vw,40px); border-bottom:1px solid #123f22;">
+    <div style="max-width:1280px; margin:0 auto;">
+      <div style="font-family:'Anton',sans-serif; color:#fff; font-size:clamp(27px,5vw,38px);">THE GREATEST ROSTERS EVER ASSEMBLED</div>
+      <div style="color:#7fa98c; font-size:14px; margin:6px 0 22px; max-width:900px; line-height:1.5;">The highest-scoring rosters in league history — a manager's final roster, built into its optimal starting lineup plus the two best RB/WR/TE bench pieces, ranked by total season points. Positional finish is each player's rank among all players rostered leaguewide that season. <span style="color:#5f8a6d;">(All 18 seasons; the modern high-scoring era dominates.)</span></div>
+      <div style="display:flex; flex-direction:column; gap:18px;">
+        <sc-for list="{{ bestRosters }}" as="r" hint-placeholder-count="3">
+          <div style="background:#0f331f; border:1px solid #1e5230; border-top:4px solid #f2c94c; padding:22px 24px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; border-bottom:1px solid #1e5230; padding-bottom:14px; margin-bottom:14px;">
+              <div style="display:flex; align-items:center; gap:16px;">
+                <div style="font-family:'Anton',sans-serif; color:#f2c94c; font-size:clamp(30px,6vw,44px); line-height:0.8;">{{ r.rank }}</div>
+                <div>
+                  <div style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:700; font-size:24px; line-height:1;">{{ r.manager }} <span style="color:#5f8a6d;">· {{ r.season }}</span></div>
+                  <div style="color:#8fb89c; font-size:14px; font-style:italic; margin-top:2px;">"{{ r.team }}"</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:28px; text-align:right;">
+                <div><div style="font-family:'Anton',sans-serif; color:#f2c94c; font-size:30px; line-height:1;">{{ r.total }}</div><div style="font-family:'Space Mono',monospace; color:#8fb89c; font-size:11px;">roster pts</div></div>
+                <div><div style="font-family:'Anton',sans-serif; color:#e8ddc3; font-size:30px; line-height:1;">{{ r.avgWk }}</div><div style="font-family:'Space Mono',monospace; color:#8fb89c; font-size:11px;">team pts/wk</div></div>
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:8px;">
+              <sc-for list="{{ r.players }}" as="p" hint-placeholder-count="12">
+                <div style="display:flex; align-items:center; gap:10px; background:#0c2b17; border:1px solid #1a4028; padding:8px 12px;">
+                  <div style="font-family:'Space Mono',monospace; color:#f2c94c; font-size:11px; width:46px;">{{ p.finish }}</div>
+                  <div style="flex:1;"><div style="font-family:'Barlow Condensed',sans-serif; color:#fff; font-weight:600; font-size:15px; line-height:1.05;">{{ p.name }}</div><div style="color:#5f8a6d; font-size:10px; font-family:'Space Mono',monospace;">{{ p.pos }}</div></div>
+                  <div style="font-family:'Space Mono',monospace; color:#e8ddc3; font-size:13px;">{{ p.pts }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- YEAR SELECTOR -->
+  <div style="background:#08210f; padding:22px 40px; position:sticky; top:70px; z-index:15; border-bottom:1px solid #123f22;">
+    <div style="max-width:1280px; margin:0 auto; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+      <span style="font-family:'Space Mono',monospace; color:#5f8a6d; font-size:12px; letter-spacing:0.1em; margin-right:6px;">SEASON:</span>
+      <sc-for list="{{ yearBtns }}" as="y" hint-placeholder-count="18">
+        <div onClick="{{ y.onClick }}" style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px; padding:7px 14px; cursor:{{ y.cursor }}; background:{{ y.bg }}; color:{{ y.color }}; border:1px solid {{ y.border }}; letter-spacing:0.02em;">{{ y.label }}</div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- SELECTED YEAR -->
+  <div style="background:#0c2b17; padding:36px 40px 56px;">
+    <div style="max-width:1280px; margin:0 auto;">
+      <div style="display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;">
+        <div style="font-family:'Anton',sans-serif; color:#fff; font-size:52px; line-height:1;">{{ yearLabel }} DRAFT</div>
+        <div style="font-family:'Barlow Condensed',sans-serif; color:#f2c94c; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; font-size:16px;">{{ draftType }}</div>
+        <div style="font-family:'Space Mono',monospace; color:#5f8a6d; font-size:13px;">{{ draftMeta }}</div>
+      </div>
+
+      <sc-if value="{{ hasNote }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:16px; background:#1c1608; border:1px dashed #b9902f; padding:14px 18px; display:flex; gap:12px; align-items:flex-start;">
+          <span style="font-size:18px;">⚠️</span>
+          <div style="color:#d8c48f; font-size:14px; line-height:1.5;">{{ note }}</div>
+        </div>
+      </sc-if>
+
+      <div style="overflow-x:auto; margin-top:26px;">
+        <div style="display:grid; grid-template-columns:{{ gridCols }}; gap:18px; min-width:{{ gridMin }};">
+        <sc-for list="{{ teams }}" as="tm" hint-placeholder-count="10">
+          <div style="background:#0f331f; border:1px solid #1e5230; border-top:4px solid #f2c94c;">
+            <div style="padding:16px 18px 12px; border-bottom:1px solid #1a4028;">
+              <div style="font-family:'Anton',sans-serif; color:#fff; font-size:22px; line-height:1;">{{ tm.team }}</div>
+              <div style="font-family:'Barlow Condensed',sans-serif; color:#8fb89c; font-weight:600; font-size:14px; margin-top:3px;">{{ tm.owner }}</div>
+            </div>
+            <div>
+              <sc-for list="{{ tm.picks }}" as="pk" hint-placeholder-count="16">
+                <div style="display:flex; align-items:center; gap:10px; padding:8px 16px; background:{{ pk.bg }}; border-bottom:1px solid #123f22;">
+                  <span style="font-family:'Space Mono',monospace; color:#4f7a5e; font-size:12px; width:20px; text-align:right;">{{ pk.n }}</span>
+                  <span style="font-family:'Barlow',sans-serif; color:#e6f0e9; font-weight:{{ pk.weight }}; font-size:14.5px; flex:1;">{{ pk.player }}</span>
+                  <span style="font-family:'Space Mono',monospace; color:{{ pk.posColor }}; font-size:10px; width:38px; text-align:center; background:#0a2213; padding:2px 0;">{{ pk.pos }}</span>
+                  <sc-if value="{{ pk.keeper }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-family:'Space Mono',monospace; color:#0c2b17; background:#f2c94c; font-size:9px; padding:2px 5px; letter-spacing:0.06em;">KEPT</span>
+                  </sc-if>
+                  <span style="font-family:'Space Mono',monospace; color:{{ pk.amtColor }}; font-size:13px; width:44px; text-align:right;">{{ pk.amt }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="background:#0c2b17; border-top:2px solid #1e5230; padding:26px clamp(18px,4.5vw,40px); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <span style="font-family:'Barlow Condensed',sans-serif; color:#5f7d68; letter-spacing:0.14em; font-size:14px; text-transform:uppercase;">NO CSBS · No Chicken Shit Bullshit</span>
+    <span style="font-family:'Space Mono',monospace; color:#5f7d68; font-size:12px;">MINNESOTA · SINCE 2008</span>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props){ super(props); this.state = { year: null }; }
+  componentDidMount(){
+    const ready = () => window.NOCSBS && window.NOCSBS_DRAFTS;    if(ready()){ this.setState({ year: this._latest() }); }
+    else { this._iv = setInterval(()=>{ if(ready()){ clearInterval(this._iv); this.setState({ year: this._latest() }); } }, 60); }
+  }
+  componentWillUnmount(){ if(this._iv) clearInterval(this._iv); }
+  _latest(){ const ing = window.NOCSBS_DRAFTS.meta.ingested; return ing[ing.length-1]; }
+
+  renderVals(){
+    const DD = window.NOCSBS_DRAFTS, LG = window.NOCSBS;
+    if(!DD || !LG) return {};
+    const year = this.state.year || this._latest();
+    const nm = id => (LG.name[id] || id);
+    const posColors = { QB:"#e8a0a0", RB:"#8fd6a0", WR:"#8fbfe8", TE:"#e8cf8f", K:"#c9a0e8", "D/ST":"#bcbcbc" };
+
+    // year selector buttons
+    const ingested = DD.meta.ingested;
+    const yearBtns = DD.meta.allYears.map(y => {
+      const on = ingested.includes(y);
+      const sel = y === year;
+      return {
+        label: on ? ("" + (y+1)) : ((y+1) + " ·"),
+        cursor: on ? "pointer" : "default",
+        bg: sel ? "#f2c94c" : (on ? "#0f331f" : "#0a1c11"),
+        color: sel ? "#0c2b17" : (on ? "#e6f0e9" : "#3f5c4a"),
+        border: sel ? "#f2c94c" : (on ? "#2a5238" : "#16321f"),
+        onClick: on ? (() => this.setState({ year: y })) : (() => {})
+      };
+    });
+
+    const dr = DD.drafts[year];
+
+    // ---- draft analytics across all ingested years ----
+    const posColors2 = posColors;
+    const pairSeasons = {}; // player|mid -> [years]
+    const posOf = {};
+    ingested.forEach(y => {
+      const d = DD.drafts[y];
+      d.teams.forEach(tm => {
+        tm.picks.forEach(p => {
+          const key = p[0] + '\u0001' + tm.o;
+          (pairSeasons[key] = pairSeasons[key] || []).push(y);
+          posOf[p[0]] = p[1];
+        });
+      });
+    });
+    const rc2 = i => i < 3 ? "#f2c94c" : "#5f8a6d";
+    const pairArr = Object.keys(pairSeasons).map(k => {
+      const [player, mid] = k.split('\u0001');
+      const yrs = pairSeasons[k].sort((a,b)=>a-b);
+      // longest consecutive run
+      let best=1, cur=1, bestEnd=yrs[0];
+      for(let i=1;i<yrs.length;i++){ if(yrs[i]===yrs[i-1]+1){cur++; if(cur>best){best=cur;bestEnd=yrs[i];}} else cur=1; }
+      return { player, mid, pos:posOf[player], count:yrs.length, years:yrs, run:best, runEnd:bestEnd };
+    });
+    const mostDrafted = pairArr.filter(p=>p.count>=2).sort((a,b)=> b.count-a.count || a.player.localeCompare(b.player)).slice(0,10)
+      .map((p,i)=>({ rank:i+1, rankColor:rc2(i), player:p.player, pos:p.pos, manager:nm(p.mid), years:p.years.join(", "), count:p.count }));
+    const streaks = pairArr.filter(p=>p.run>=2).sort((a,b)=> b.run-a.run || b.count-a.count).slice(0,10)
+      .map((p,i)=>({ rank:i+1, rankColor:rc2(i), player:p.player, pos:p.pos, manager:nm(p.mid), span:(p.runEnd-p.run+1)+"–"+p.runEnd, len:p.run }));
+    const draftAnalytics = {
+      draftYearsCount: ingested.length,
+      draftYearsRange: ingested.length ? (ingested[0] + "–" + ingested[ingested.length-1]) : "—",
+      mostDrafted, streaks
+    };
+
+    // ---- moved from The Pantheon: journeymen + greatest rosters ----
+    const P = window.NOCSBS_PANTHEON;
+    const fmtN = n => Number(n).toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:1});
+    const journeymen = ((P&&P.mostTeams)||[]).map((r,i)=>({ rank:i+1, rankColor:rc2(i), player:r.player, pos:r.pos, teams:r.teams, picks:r.picks }));
+    const bestRosters = ((P&&P.bestRosters)||[]).map((r,i)=>{
+      const ft = LG.flatTeams.find(t=>t.year===r.season && t.id===r.mid);
+      const games = ft ? (ft.w+ft.l+ft.t) : 0;
+      const avgWk = (ft && games) ? ft.pf/games : 0;
+      return { rank:i+1, season:(Number(r.season)+1), manager:nm(r.mid), team: ft ? ft.team : "", total:fmtN(r.total),
+        avgWk: avgWk ? fmtN(avgWk) : "\u2014",
+        players: r.players.map(p=>({ name:p.name, pos:p.pos, pts:fmtN(p.pts),
+          finish: (p.pos==='D/ST'||p.pos==='K') ? p.pos : p.finish })) };
+    });
+    draftAnalytics.journeymen = journeymen;
+    draftAnalytics.bestRosters = bestRosters;
+
+    // draft-value swings (moved from The Pantheon)
+    const rcv = i => i < 3 ? "#f2c94c" : "#5f8a6d";
+    const eraMetaD = e => ({ era:e||"", eraColor: e==="WC" ? "#e8b84a" : "#b98f4a",
+      eraFull: e==="WC" ? "World Championship Era (2009–10)" : (e==="OG" ? "OG Era (2011–19)" : "") });
+    draftAnalytics.snakeGap = ((P&&P.snakeGap)||[]).slice(0,6).map((r,i)=>({ rank:i+1, rankColor:rcv(i), player:r.player, pos:r.pos, diff:r.diff,
+      lo:"pick "+r.loPick+" ("+(Number(r.loYr)+1)+")", hi:"pick "+r.hiPick+" ("+(Number(r.hiYr)+1)+")", ...eraMetaD(r.era) }));
+    draftAnalytics.aucGap = ((P&&P.aucGap)||[]).slice(0,6).map((r,i)=>({ rank:i+1, rankColor:rcv(i), player:r.player, pos:r.pos, diff:"$"+r.diff,
+      lo:"$"+r.loAmt+" ("+(Number(r.loYr)+1)+")", hi:"$"+r.hiAmt+" ("+(Number(r.hiYr)+1)+")", ...eraMetaD(r.era) }));
+
+    if(!dr) return { yearBtns, year, yearLabel:(year+1), teams: [], gridCols:"repeat(5,minmax(0,1fr))", gridMin:"1150px", draftType:"", draftMeta:"", hasNote:false, note:"", ...draftAnalytics };
+
+    const teams = dr.teams.map(tm => ({      team: tm.t,
+      owner: nm(tm.o),
+      picks: tm.picks.map((p, i) => {
+        const [player, pos, amt, keeper] = p;
+        const isK = keeper === 1;
+        return {
+          n: i + 1,
+          player,
+          pos,
+          posColor: posColors[pos] || "#9dc4aa",
+          weight: isK ? 700 : 500,
+          keeper: isK,
+          amt: dr.hasAmounts ? ("$" + amt) : "",
+          amtColor: dr.hasAmounts ? "#e8ddc3" : "transparent",
+          bg: isK ? "#183f26" : "transparent"
+        };
+      })
+    }));
+
+    const cols = Math.max(1, Math.ceil(dr.teams.length / 2));
+    return {
+      yearBtns,
+      year,
+      yearLabel: (year+1),
+      gridCols: "repeat(" + cols + ", minmax(0, 1fr))",
+      gridMin: (cols * 230) + "px",
+      draftType: dr.type,
+      draftMeta: dr.teams.length + " teams · " + (dr.teams[0] ? dr.teams[0].picks.length : 0) + " rounds",
+      hasNote: !!dr.note,
+      note: dr.note || "",
+      teams,
+      ...draftAnalytics
+    };
+  }
+}
+</script>
+</body>
+</html>

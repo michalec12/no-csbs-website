@@ -1,0 +1,42 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Local Netlify folder
+.netlify
+
+# The two desktop apps are their OWN git repositories that merely sit inside
+# this folder. Without these rules `git add -A` records each as a gitlink --
+# a submodule pointer with no .gitmodules and no remote, which is broken for
+# anyone who clones this. They are excluded, not submoduled, on purpose:
+#   podcast-app/    -> github.com/michalec12/no-csbs-companion   (private)
+#   kompanion-app/  -> github.com/michalec12/kommissioners-kompanion (private)
+# Commit inside those folders, never from here.
+/podcast-app/
+/kompanion-app/
+
+# 111 KB of accumulated tool permissions, and machine-specific. It is already
+# covered by a GLOBAL ignore file on this machine, but a global rule does not
+# travel with the repo -- so it is stated here too, where it survives a clone.
+.claude/settings.local.json

@@ -40,3 +40,9 @@ dist-ssr
 # covered by a GLOBAL ignore file on this machine, but a global rule does not
 # travel with the repo -- so it is stated here too, where it survives a clone.
 .claude/settings.local.json
+
+# The podcast app's own session log. Lives at the workspace root because
+# CLAUDE.md tells every session to read it there, but it belongs to the OTHER
+# project -- it is versioned in podcast-app/ (github.com/michalec12/no-csbs-companion,
+# private) and deliberately kept out of this repo, which is public.
+SESSIONS.md

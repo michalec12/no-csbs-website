@@ -7,7 +7,8 @@ the two are not to be mixed (don't fold website notes into the podcast app's
 session log, or vice versa).
 
 - **No CSBS Podcast Companion** (`podcast-app/`) — the podcast production
-  tool. See below; unchanged from before this repo had a second project.
+  tool. Built and shipping (v1.1.0), and its code lives in its own git repo
+  that merely sits inside this folder. See below.
 - **NO CSBS Website + Kommissioner's Kompanion App** (`site/`,
   `kompanion-app/`) — the league's public website and the commissioner's
   desktop companion app. The app is built and shipped, and its code now lives
@@ -31,8 +32,32 @@ entry to the top of `SESSIONS.md` (newest first, follow the existing format).
 
 ### Hard rules
 
-- **No Windows installer yet.** Do not run `npm run dist` — the owner will
-  explicitly call a "confident v1" when it's time. Dev-mode launches only.
+- **Releases are the owner's call, and the owner runs the build.** The app now
+  ships: v1.0.0 on 2026-08-25, v1.1.0 on 2026-09-16 (tagged and pushed).
+  Building an installer is not standing permission — do it only when the owner
+  asks for that release, and note that **Claude's permission classifier blocks
+  `npm run dist` / `npx electron-builder --win` as a production deploy**, so
+  the owner runs that command themselves. Don't go looking for a route around
+  it; do everything else (commit, tag, back up) and hand them the command.
+  Two invariants for any release, both already load-bearing on the installed
+  app — verify, never assume:
+  - **Back up the real database first**, via SQLite's backup API (not a file
+    copy), with the app closed, and verify `integrity_check` plus row counts
+    on the copy.
+  - **Never change the top-level `productName` or `appId`.** userData derives
+    from `app.getName()` → the top-level `productName`
+    (`No CSBS Podcast Companion`), while `build.productName` is the different
+    `No CSBS Companion`. Changing the former orphans the owner's database and
+    the app starts empty. Installers only write to
+    `%LOCALAPPDATA%\Programs\no-csbs-companion`.
+- **`podcast-app/` is a separate git repo** (`michalec12/no-csbs-companion`,
+  private, branch `main`) that merely sits inside this folder, exactly like
+  `kompanion-app/`. It is **not** a submodule and this folder does not track
+  it. Run its git commands from **inside** `podcast-app/`, and never
+  `git add` it from here. `SESSIONS.md` lives in BOTH places: the copy in this
+  folder is the one to read and append to (it is git-ignored here), and
+  `podcast-app/SESSIONS.md` is its version-controlled backup — refresh that
+  copy from this one as part of any commit, or the backup silently rots.
 - **Never print, log, or type secret values** (API keys, bot tokens, webhook
   URLs) anywhere — chat, tool output, or code. Verify secrets by presence/
   length only. Secrets are encrypted at rest via Electron safeStorage (DPAPI).
@@ -53,7 +78,12 @@ entry to the top of `SESSIONS.md` (newest first, follow the existing format).
 ### Working conventions
 
 - Project code lives in `podcast-app/`. Build: `npx electron-vite build`.
-  Type-check: `npx tsc --noEmit -p tsconfig.json` (run from `podcast-app/`).
+  Type-check: **`npm run typecheck`** (run from `podcast-app/`). Do NOT use
+  `npx tsc --noEmit -p tsconfig.json` — that file is a solution stub
+  (`"files": []` + project references), so without `--build` it checks nothing
+  and exits 0. Verified 2026-09-16: a deliberate `const x: number = "str"`
+  passes it silently and is caught only by the npm script, which runs
+  `tsconfig.node.json` and `tsconfig.web.json` separately.
 - Verify changes with the self-test harness, not a browser preview (the
   renderer needs Electron's preload bridge):
   `NOCSBS_SELFTEST=<mode> ./node_modules/electron/dist/electron.exe .`

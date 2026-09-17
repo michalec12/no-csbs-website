@@ -8,6 +8,106 @@ its own separate `SESSIONS.md`.
 
 ---
 
+## 2026-09-17 — Spell-check context menu (Kompanion app)
+
+Owner reported that in both this app and the podcast app, a misspelled word
+shows a red underline but right-clicking it does nothing. tsc + build clean;
+new `KOMPANION_SELFTEST=spellcheck` mode; `boot`, `autosave` and
+`composenewpost` still pass.
+
+### Nothing was broken — the feature was never built
+
+Electron turns Chromium's spellchecker on by default (which is why the
+underlines have always been there) but ships **no default context menu**. Every
+app has to build one. Grep across `src/` for `context-menu`,
+`Menu.buildFromTemplate`, `spellcheck` and `replaceMisspelling` returned **zero
+hits**; `Menu` was never even imported, and `session.defaultSession` was never
+touched.
+
+New `src/main/contextMenu.ts`, attached in `createWindow()`
+(`src/main/index.ts`): spelling suggestions → **Add to Dictionary** →
+Cut / Copy / Paste / Paste and Match Style / Select All, enabled from
+`params.editFlags`; a read-only area with a selection gets Copy only. Plus a
+guarded `setSpellCheckerLanguages(['en-US'])` so behaviour doesn't drift with
+the OS locale.
+
+Two shape decisions worth keeping:
+
+- **`buildContextMenuTemplate` is pure and exported.** `Menu.popup()` opens a
+  *native* menu that blocks until dismissed, so a self-test can never assert
+  against a real one. The menu's shape is asserted through the pure function;
+  only `attachContextMenu` pops anything.
+- **`attachContextMenu` takes a `webContents`, not a window**, because
+  `whenReady`'s self-test branch returns at `index.ts:164` before
+  `createWindow()` at `:168`, and all 18 self-test windows are built with only
+  `{ preload }`. A per-window helper would be untestable here.
+
+### This file is a duplicated pair
+
+`src/main/contextMenu.ts` is near-verbatim the same file as the one in the
+**No CSBS Podcast Companion** repo (`michalec12/no-csbs-companion`). They are
+separate repos, so nothing enforces that they stay in step — change one, change
+the other. This joins the `season_data` type shapes and the `mk-*` box-score
+CSS on the list of things mirrored across a repo boundary with no enforcement.
+
+### DO NOT add a "remove from dictionary" feature here
+
+Learned the expensive way in the sibling app this same session, and it applies
+identically here because both are Electron 38 on Windows:
+
+**`removeWordFromSpellCheckerDictionary` does not delete a word.** On Windows it
+appends it to the OS **exclusion** list at
+`%APPDATA%\Microsoft\Spelling\en-US\default.exc`, after which Word, Outlook and
+Edge flag that word as wrong **forever**. In the podcast app a "remove these
+names" button built on it put 563 real player surnames in that file; they had to
+be verified as self-inflicted, backed up and cleared by hand.
+
+The cause: there is **no `.bdic` in any profile**, so Chromium is using the
+**Windows platform spellchecker** rather than hunspell, and the platform's
+"forget this word" primitive *is* the exclusion list. Adding, by contrast, is
+app-local and harmless — it lands in the profile's own `Custom Dictionary.txt`
+and leaves Windows' user dictionary alone.
+
+Per the owner's call, this app pre-loads **no** word list at all: the menu's
+Add to Dictionary is the only thing that ever writes, one deliberate click at a
+time.
+
+### Self-test
+
+`KOMPANION_SELFTEST=spellcheck` asserts the template for a real misspelling
+(suggestions first, Add to Dictionary present, edit items present), for a
+correctly-spelled word (no spelling items), for an empty suggestion list
+("No suggestions", disabled), and for a read-only selection (Copy only); that
+the session's custom dictionary accepts a word — which also proves the session
+is persistent, as that API requires; and that the spellchecker is enabled with
+en-US pinned and exactly one `context-menu` handler attached to a real window
+that paints.
+
+It calls `registerIpc()` itself: `whenReady`'s self-test branch returns before
+the real one runs, so without it the renderer boots into a wall of "no handler
+registered" and never paints — worth knowing for any future renderer-driving
+mode here.
+
+**What is NOT asserted, deliberately:** a real right-click. The browser-process
+`context-menu` event comes from the OS gesture (WM_CONTEXTMENU);
+`sendInputEvent` injects at the Blink level and never produces it, and a
+renderer-dispatched `MouseEvent('contextmenu')` is untrusted so it doesn't
+either. Both were tried in the sibling app. The gesture itself is the owner's
+to confirm.
+
+### Open items
+
+- Not yet built or installed — the installed app is still v1.0.0. Build with
+  `npm.cmd run dist` from `kompanion-app/` (plain `npm` is blocked by
+  PowerShell's execution policy on this machine).
+- The Compose editor (`RichNotesBox`) is an uncontrolled `contentEditable` that
+  syncs to React from `onInput` only. In the podcast app's equivalent, a
+  main-process `replaceMisspelling` **was** verified to reach saved state; the
+  same is expected here but has not been asserted, since the editor lives
+  behind the Compose flow rather than on first paint.
+
+---
+
 ## 2026-08-29 (later) — Everything is finally in a repo, and the public remote is gone
 
 Closes the open item from the entry below. **This folder is now

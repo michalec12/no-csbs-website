@@ -7,7 +7,7 @@ the two are not to be mixed (don't fold website notes into the podcast app's
 session log, or vice versa).
 
 - **No CSBS Podcast Companion** (`podcast-app/`) — the podcast production
-  tool. Built and shipping (v1.1.0), and its code lives in its own git repo
+  tool. Built and shipping (v1.2.1), and its code lives in its own git repo
   that merely sits inside this folder. See below.
 - **NO CSBS Website + Kommissioner's Kompanion App** (`site/`,
   `kompanion-app/`) — the league's public website and the commissioner's
@@ -33,7 +33,8 @@ entry to the top of `SESSIONS.md` (newest first, follow the existing format).
 ### Hard rules
 
 - **Releases are the owner's call, and the owner runs the build.** The app now
-  ships: v1.0.0 on 2026-08-25, v1.1.0 on 2026-09-16 (tagged and pushed).
+  ships: v1.0.0 on 2026-08-25, v1.1.0 and v1.1.1 on 2026-09-16, v1.2.0 and
+  v1.2.1 on 2026-09-17 (all tagged and pushed).
   Building an installer is not standing permission — do it only when the owner
   asks for that release, and note that **Claude's permission classifier blocks
   `npm run dist` / `npx electron-builder --win` as a production deploy**, so

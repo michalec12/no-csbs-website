@@ -15,6 +15,22 @@ shows a red underline but right-clicking it does nothing. tsc + build clean;
 new `KOMPANION_SELFTEST=spellcheck` mode; `boot`, `autosave` and
 `composenewpost` still pass.
 
+### Follow-up: the running version is on screen now
+
+Same request as the podcast app, and the same reason: with no auto-update there
+was nothing in the UI to say which build was running — this app was still
+v1.0.0 on disk while git said v1.1.0, and only a registry/exe check could tell.
+
+New `app:version` IPC returning `app.getVersion()` (the **packaged**
+package.json, so an installed build reports what was installed), rendered
+inline in `.app-topbar` after the name: `KOMMISSIONER'S KOMPANION  v1.1.0`,
+mono and dimmed. There is horizontal room here, unlike the podcast app's 240px
+sidebar where the same treatment wrapped and needed its own line.
+
+The `spellcheck` self-test asserts the top bar contains
+`v${app.getVersion()}` — matched against the live value, not a literal, so it
+cannot drift from the real version.
+
 ### Nothing was broken — the feature was never built
 
 Electron turns Chromium's spellchecker on by default (which is why the
@@ -97,9 +113,19 @@ to confirm.
 
 ### Open items
 
-- Not yet built or installed — the installed app is still v1.0.0. Build with
-  `npm.cmd run dist` from `kompanion-app/` (plain `npm` is blocked by
-  PowerShell's execution policy on this machine).
+- **Built and packaged for the commissioner** (2026-09-17): `release/
+  Kommissioner's Kompanion Setup 1.1.0.exe` (105.6 MB, version resource 1.1.0,
+  asar confirmed to carry the context menu and version display), zipped with a
+  plain-language `READ ME FIRST.txt` as `Desktop\Kommissioners-Kompanion-1.1.0.zip`.
+  The zip was extracted and SHA256-compared against the source installer
+  before handing over. **The zip carries the real shared secret** (baked into
+  every build), so it goes to the commissioner by direct transfer only.
+- **Overwrite install keeps the commissioner's data — verified, not assumed:**
+  `productName`, `appId` and `name` are byte-identical to v1.0.0, so userData
+  resolves to the same folder; and the electron-builder upgrade runs the old
+  uninstaller *silently*, where `build/installer.nsh`'s `IfSilent` guard takes
+  the **keep** branch rather than the prompt. Not yet confirmed on the
+  commissioner's actual machine.
 - The Compose editor (`RichNotesBox`) is an uncontrolled `contentEditable` that
   syncs to React from `onInput` only. In the podcast app's equivalent, a
   main-process `replaceMisspelling` **was** verified to reach saved state; the
